@@ -1,0 +1,6 @@
+package Messages;
+
+public enum MessageType {
+	Register,LogIn//here we can add all kinds of comnunication types
+
+}

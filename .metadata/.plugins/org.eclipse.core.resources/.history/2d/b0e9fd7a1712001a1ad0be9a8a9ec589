@@ -1,0 +1,29 @@
+package Server;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.Scanner;
+
+public class listner extends Thread{
+	private Socket listner;
+	private Scanner input;
+	private PrintWriter output;
+	
+	public listner(Socket listner) {
+		this.listner=listner;
+		
+		try {
+			input=new Scanner(listner.getInputStream());
+			output=new PrintWriter(listner.getOutputStream(),true);
+		}catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void run() {
+		
+	}
+
+}

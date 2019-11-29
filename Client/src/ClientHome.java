@@ -1,9 +1,15 @@
+
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
+
+import Messages.Message;
+import Messages.MessageType;
+import Messages.User;
 
 public class ClientHome {
 	
@@ -17,36 +23,57 @@ public class ClientHome {
 			System.out.println("Host ID not found !");
 			System.exit(1);
 		}
+		
 		accessServer();
 	
 }
 	private static void accessServer() {
-		Socket link=null;
-		Scanner input=null;
+		
+		Socket socket=null;
+		
+		//Scanner input=null;
 		Scanner userIntry=null;
+	    ObjectOutputStream output;
 		
 		try {
-			link=new Socket(host,PORT);
-			input=new Scanner(link.getInputStream());
-			PrintWriter output=new PrintWriter(link.getOutputStream(),true);
+			socket=new Socket(host,PORT);
+			
+			
+			//input=new Scanner(link.getInputStream());
+			output = new ObjectOutputStream(socket.getOutputStream());
+			//PrintWriter output=new PrintWriter(link.getOutputStream(),true);
 			userIntry=new Scanner(System.in);
-			String message,response;
+			
+			String userName,password;
 			do {
-				System.out.println("Print msg : ");
-				message=userIntry.nextLine();
-				output.println(message);
+				System.out.println("Register : \nUserName");
+				userName=userIntry.nextLine();
+				System.out.println("Password");
+				password=userIntry.nextLine();
 				
-				response=input.nextLine();
-				System.out.println(response);
+				User user=new User();
+				user.setUserName(userName);
+				user.setPassword(password);
+				Message msg=new Message();
+				msg.setType(MessageType.Register);		
+				msg.setUser(user);
 				
-			}while(!message.equals("CLOSE"));			
+				
+			
+				output.writeObject(msg);
+				
+				
+				
+				
+				
+			}while(true);			
 			
 		}catch(IOException e) {
 			e.printStackTrace();
 		}finally {
-			input.close();
+			//input.close();
 			try {
-				link.close();
+				socket.close();
 			}catch(IOException e)
 			{
 				System.out.println("\nUnable to close conection ");

@@ -1,1 +1,16 @@
 1574872535166	Move compilation unit
+1574898554122	Rename local variable 'client'
+1574898583841	Rename local variable 'link'
+1574898896260	Rename local variable 'client'
+1574970203934	Rename type 'User'
+1574970264532	Delete element
+1574975272261	Rename compilation unit 'Client.java'
+1574976294000	Encapsulate field 'UserName'
+1574976307969	Encapsulate field 'Password'
+1574977531597	Copy compilation units
+1574977712550	Copy compilation units
+1574991575374	Delete element
+1574992921872	Move compilation unit
+1574992930621	Move compilation unit
+1574992938777	Move compilation unit
+1574992990606	Copy package

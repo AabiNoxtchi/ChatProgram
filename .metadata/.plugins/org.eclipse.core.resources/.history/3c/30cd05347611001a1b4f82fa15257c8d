@@ -1,0 +1,48 @@
+package Server;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.Scanner;
+
+public class User extends Thread{
+	private Socket listner;
+	private Scanner input;
+	private PrintWriter output;
+	
+	public User(Socket listner) {
+		this.listner=listner;
+		
+		try {
+			input=new Scanner(listner.getInputStream());
+			output=new PrintWriter(listner.getOutputStream(),true);
+		}catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void run() {
+		try {
+			input=new Scanner(listner.getInputStream());
+		
+		PrintWriter output=
+				new PrintWriter(listner.getOutputStream(),true);
+		int numMessages=0;
+		String message=input.nextLine();
+		
+		
+		while(!message.contentEquals("CLOSE"))
+		{
+			numMessages++;
+			output.println(message+numMessages+" messages recieved");
+			message=input.nextLine();
+			
+		}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}

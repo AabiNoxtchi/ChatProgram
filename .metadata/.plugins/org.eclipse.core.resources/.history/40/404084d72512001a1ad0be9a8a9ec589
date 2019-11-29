@@ -1,0 +1,12 @@
+package Server;
+
+
+
+public class Message {
+	
+	
+	public MessageType type;
+	
+	public User user;
+
+}
