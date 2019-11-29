@@ -9,4 +9,9 @@
 <fullyQualifiedTypeName name="java.io.IOException"/>
 <fullyQualifiedTypeName name="java.net.UnknownHostException"/>
 <fullyQualifiedTypeName name="java.io.Serializable"/>
+<fullyQualifiedTypeName name="java.awt.TrayIcon.MessageType"/>
+<fullyQualifiedTypeName name="Messages.MessageType"/>
+<fullyQualifiedTypeName name="Messages.Message"/>
+<fullyQualifiedTypeName name="java.util.ArrayList"/>
+<fullyQualifiedTypeName name="Messages.User"/>
 </qualifiedTypeNameHistroy>

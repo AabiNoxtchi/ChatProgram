@@ -50,18 +50,27 @@ public class ClientListner extends Thread{
           
 
                 while (socket.isConnected()) {
+                	try {
 						
 						if (msg != null) {
-		                        System.out.println(msg.getType() + " - " + msg.getUser().getUserName() + ": " + msg.getUser().getPassword());
+		                      //  System.out.println(msg.getType() + " - " + msg.getUser().getUserName() + ": " + msg.getUser().getPassword());
 		                        switch (msg.getType()) {
 		                           case Register:
 		                            	System.out.println("registering new user");
-		                            	//System.out.println(msg);
-		                            	System.out.println(msg.getUser().getUserName());
-		                            	
 		                            	boolean registered= Register(msg.getUser());
-		                               
+		                            	System.out.println(registered);									
+										output.writeObject(registered);					
+	                               
 		                                break;
+		                                
+		                           case LogIn:
+		                        	   
+		                           
+		                           boolean loggedIn= LogIn(msg.getUser());
+	                            	System.out.println(loggedIn);									
+									output.writeObject(loggedIn);			                           
+		                           
+		                        	   break;
 								default:
 									break;
 		                        //    case LogIn:
@@ -71,7 +80,7 @@ public class ClientListner extends Thread{
 		                        }
 		                    }
 						
-						try {
+						
 							msg = (Message)input.readObject();
 						} catch (ClassNotFoundException e1) {
 							// TODO Auto-generated catch block
@@ -82,30 +91,27 @@ public class ClientListner extends Thread{
 						}
 						
 					} 
-           
-                	
-                    
-                
-              
+	}
+
+	private boolean LogIn(User user) {
+		
+		Server.LogInOnlineUsers(user);
+		// TODO Auto-generated method stub
+		return true;
 	}
 
 	private boolean Register(User user) {
-		
-		if(!CheckIfExist(user)) {
-			
-			//to do register user
-			
+		//System.out.println("Register boolean : "+Server.CheckIfExist(user));
+		//if true = user does exist
+		if(Server.CheckIfExist(user)) {			
+			return false;			
+		}else {
+			Server.RegisterNewUser(user);
+			return true;
 		}
-		
-		
-		// TODO Auto-generated method stub
-		return false;
 	}
 
-	private boolean CheckIfExist(User user) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	
 }
 
 

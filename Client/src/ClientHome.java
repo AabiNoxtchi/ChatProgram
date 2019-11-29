@@ -1,5 +1,6 @@
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
@@ -10,6 +11,9 @@ import java.util.Scanner;
 import Messages.Message;
 import Messages.MessageType;
 import Messages.User;
+import Views.LogIn;
+import Views.Register;
+import Views.UserHome;
 
 public class ClientHome {
 	
@@ -17,6 +21,9 @@ public class ClientHome {
 	private static int PORT=9003;
 	
 	public static void main(String[] args) {
+		
+		LogIn logIn=new LogIn();
+		Message msg=logIn.logIn();
 		try {
 			host=InetAddress.getLocalHost();
 		}catch(UnknownHostException e) {
@@ -24,16 +31,18 @@ public class ClientHome {
 			System.exit(1);
 		}
 		
-		accessServer();
+		//User user=Login();
+		accessServer(msg);
 	
 }
-	private static void accessServer() {
+	private static void accessServer(Message msg) {
 		
 		Socket socket=null;
 		
 		//Scanner input=null;
-		Scanner userIntry=null;
+		
 	    ObjectOutputStream output;
+	    ObjectInputStream input;
 		
 		try {
 			socket=new Socket(host,PORT);
@@ -41,34 +50,27 @@ public class ClientHome {
 			
 			//input=new Scanner(link.getInputStream());
 			output = new ObjectOutputStream(socket.getOutputStream());
+			input=new ObjectInputStream(socket.getInputStream());
 			//PrintWriter output=new PrintWriter(link.getOutputStream(),true);
-			userIntry=new Scanner(System.in);
 			
-			String userName,password;
 			do {
-				System.out.println("Register : \nUserName");
-				userName=userIntry.nextLine();
-				System.out.println("Password");
-				password=userIntry.nextLine();
 				
-				User user=new User();
-				user.setUserName(userName);
-				user.setPassword(password);
-				Message msg=new Message();
-				msg.setType(MessageType.Register);		
-				msg.setUser(user);
-				
-				
+				//Message msg=Login();
 			
 				output.writeObject(msg);
+				boolean done=(boolean)input.readObject();
+				if(done)System.out.println("Registered successfully");
+				else System.out.println("not Registered");
+				UserHome userHome=new UserHome();
 				
-				
-				
+				msg=userHome.newMsg();
+				//to do
+				//Message msg=userHome.newMsg();
 				
 				
 			}while(true);			
 			
-		}catch(IOException e) {
+		}catch(IOException |ClassNotFoundException e) {
 			e.printStackTrace();
 		}finally {
 			//input.close();
