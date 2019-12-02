@@ -8,7 +8,7 @@ public class Message implements Serializable{
 	 */
 	private static final long serialVersionUID = 6218223176771690605L;
 
-private MessageType type;
+    private MessageType type;
 	
 	private User user; 
 	

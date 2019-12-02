@@ -1,6 +1,8 @@
 package Messages;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.LinkedList;
 
 public class User implements Serializable{
 	
@@ -9,6 +11,15 @@ public class User implements Serializable{
 	private String Password;
 	
 	private String firstName;
+	
+    private String lastName;
+	
+	private String email;
+	
+	private Status status = Status.OffLine;
+	
+	private HashSet<User> friendsList=new HashSet<User>();
+	
 	
 	public String getFirstName() {
 		return firstName;
@@ -28,10 +39,6 @@ public class User implements Serializable{
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	private String lastName;
-	
-	private String email;
-	
 	public String getUserName() {
 		return UserName;
 	}
@@ -43,6 +50,18 @@ public class User implements Serializable{
 	}
 	public void setPassword(String password) {
 		Password = password;
+	}
+	public Status getStatus() {
+		return status;
+	}
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+	public HashSet<User> getFriendsList() {
+		return friendsList;
+	}
+	public void setFriendsList(HashSet<User> friendsList) {
+		this.friendsList = friendsList;
 	}
 	
 	@Override
@@ -63,8 +82,11 @@ public class User implements Serializable{
 	public int hashCode() {
 		
 		int result=17;
-		result*=getFirstName().hashCode()+getLastName().hashCode()+getEmail().hashCode()+getUserName().hashCode()+getPassword().hashCode();
+		result*=getUserName().hashCode();//getFirstName().hashCode()+getLastName().hashCode()+getEmail().hashCode()+getPassword().hashCode();
 		return result;
 	}
+	
+	
+	
 
 }

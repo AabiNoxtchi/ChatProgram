@@ -1,14 +1,25 @@
 package Messages;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.LinkedList;
 
 public class User implements Serializable{
 	
-	private String UserName;
+    private String firstName;
+    
+    private String lastName;
 	
-	private String Password;
+	private String email;
 	
-private String firstName;
+    private String UserName;
+	
+	private String Password;	
+    
+    private Status status=Status.OffLine;
+    
+    private HashSet<User> friendsList=new HashSet<User>();
+    
 	
 	public String getFirstName() {
 		return firstName;
@@ -28,10 +39,6 @@ private String firstName;
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	private String lastName;
-	
-	private String email;
-	
 	public String getUserName() {
 		return UserName;
 	}
@@ -44,6 +51,19 @@ private String firstName;
 	public void setPassword(String password) {
 		Password = password;
 	}
+	public Status getStatus() {
+		return status;
+	}
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+	public HashSet<User> getFriendsList() {
+		return friendsList;
+	}
+	public void setFriendsList(HashSet<User> friendsList) {
+		this.friendsList = friendsList;
+	}
+	
 	
 	@Override
 	public boolean equals(Object o) {
@@ -66,6 +86,8 @@ private String firstName;
 		result*=getFirstName().hashCode()+getLastName().hashCode()+getEmail().hashCode()+getUserName().hashCode()+getPassword().hashCode();
 		return result;
 	}
+	
+	
 
 
 }

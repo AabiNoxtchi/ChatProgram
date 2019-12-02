@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="343.0" prefWidth="419.0" style="-fx-background-color: #FFE29E;" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.RegisterController">
+   <children>
+      <Text fill="#000000b5" layoutX="39.0" layoutY="59.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Register">
+         <font>
+            <Font size="37.0" />
+         </font>
+      </Text>
+      <TextField layoutX="48.0" layoutY="117.0" promptText="first name" fx:id="txtFirstName"/>
+      <TextField layoutX="223.0" layoutY="117.0" promptText="last name" fx:id="txtLastName"/>
+      <TextField layoutX="48.0" layoutY="188.0" promptText="username" fx:id="txtUserName"/>
+      <Text fill="#000000b5" layoutX="48.0" layoutY="107.0" strokeType="OUTSIDE" strokeWidth="0.0" text="first name" />
+      <Text fill="#000000b5" layoutX="222.0" layoutY="107.0" strokeType="OUTSIDE" strokeWidth="0.0" text="last name" />
+      <Text fill="#000000b5" layoutX="48.0" layoutY="177.0" strokeType="OUTSIDE" strokeWidth="0.0" text="username" />
+      <TextField layoutX="223.0" layoutY="188.0" promptText="email" fx:id="txtEmail"/>
+      <Text fill="#000000b5" layoutX="223.0" layoutY="176.0" strokeType="OUTSIDE" strokeWidth="0.0" text="email" />
+      <PasswordField layoutX="48.0" layoutY="259.0" promptText="********" fx:id="txtPassword"/>
+      <Text fill="#000000b5" layoutX="49.0" layoutY="249.0" strokeType="OUTSIDE" strokeWidth="0.0" text="password" />
+      <Button layoutX="223.0" layoutY="259.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="155.0" style="-fx-background-color: #FFC133;" text="Register" fx:id="btnRegister" onAction="#btnRegisterAction"/>
+   </children>
+</AnchorPane>
