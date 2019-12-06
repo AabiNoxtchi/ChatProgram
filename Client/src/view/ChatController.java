@@ -1,7 +1,7 @@
 package view;
 
 
-import java.awt.Label;
+import javafx.scene.control.Label;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -10,10 +10,13 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Scanner;
+
+
 
 import ClientSocket.ClientHome;
 import Messages.Message;
@@ -39,6 +42,8 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.Callback;
@@ -46,6 +51,9 @@ import javafx.util.Pair;
 
 
 public class ChatController implements Initializable{
+	
+	@FXML
+	private Label homeLabel;
 
 	@FXML
 	private ListView<String> requestsListview=new ListView<String>();
@@ -67,6 +75,8 @@ public class ChatController implements Initializable{
 	static ArrayList<String> friendrequestsArrayList =new ArrayList<String>();
 	ObservableList<String> contactsArrayList = FXCollections.observableArrayList();
 	static ArrayList<String> chatTabs=new ArrayList<String>();
+	
+	private static String currentuser;
 
 	
 	//take contacts from data base
@@ -75,12 +85,16 @@ public class ChatController implements Initializable{
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
+		
+		currentuser=ClientHome.getCurrentuser();
+		homeLabel.setText(currentuser);
 		input=ClientHome.getInput();
 		SetFriendsList();
 		recieveNotifications();
 		
 		splitPane.setDividerPositions(0.3246);
         leftPane.maxWidthProperty().bind(splitPane.widthProperty().multiply(0.3246));
+       // tabPane= new TabPane();
         tabPane.maxWidthProperty().bind(splitPane.widthProperty().multiply(0.6546));
        
 
@@ -147,7 +161,7 @@ public class ChatController implements Initializable{
 		 msg.setType(MessageType.FriendRequest); 
 		 user.setUserName(result.get());
 		 msg.setUser(user);
-		 boolean done=ClientHome.accessServer(msg);
+		ClientHome.sendMsgs(msg);
 		 //add to friend list
 		// contactsListTab.getItems().add(userName);
 		 contactsArrayList.add(result.get());
@@ -165,26 +179,52 @@ public class ChatController implements Initializable{
 		String name=contactsListTab.getSelectionModel().getSelectedItem().toString();
 		if(chatTabs.contains(name))
 		 System.out.println("clicked on " +name );
-		 Tab newtab=new Tab(name);
-		 try {
-			newtab.setContent(FXMLLoader.load(getClass().getResource("ChatBox.fxml")));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		 tabPane.getTabs().add( 
-                 tabPane.getTabs().size() - 1, newtab); 
-
-         // select the last tab 
-         tabPane.getSelectionModel().select( 
-                 tabPane.getTabs().size() - 2); 
-		 tabPane.getTabs().add(newtab); 
-		 chatTabs.add(name);
+		else 
+		 openNewTab(name,null);
 		
 		 
 		 
 	}
 	
+	private void openNewTab(String name,Message msg) {
+		Platform.runLater(
+				  () -> {
+				    // Update UI here.
+				 
+		System.out.println("starting chat with "+name);			
+		 Tab newtab=new Tab(name);
+		 try {
+			 //
+			
+			 ChatBoxController controller= new ChatBoxController(name,msg);
+			 FXMLLoader loader=new FXMLLoader(getClass().getResource("ChatBox.fxml"));
+			 loader.setController(controller);
+			 newtab.setContent(loader.load());
+			 
+			// newtab.setContent(FXMLLoader.load(getClass().getResource("ChatBox.fxml")));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		 
+		 int index= tabPane.getTabs().size();
+		 System.out.println("index = "+tabPane.getTabs().size());
+		 tabPane.getTabs().add( 
+                tabPane.getTabs().size(), newtab); 
+		 
+		// tabPane.getTabs().add(newtab); 
+
+        tabPane.getSelectionModel().select( 
+                tabPane.getTabs().size()-1); 
+		
+		// tabPane.getSelectionModel().select(newtab);
+		 
+		 chatTabs.add(index-1, name);
+		 System.out.println("index of name in chat array = "+chatTabs.indexOf(name));
+				  }
+				);
+	}
+
+
 	public void recieveNotifications (){
 		
 		 Runnable thread = new Runnable()
@@ -221,8 +261,30 @@ public class ChatController implements Initializable{
 								if(recieved.getUser().getStatus()==Status.Online) {
 									
 									System.out.println(recieved.getUser().getUserName()+" is "+recieved.getUser().getStatus());
+								}else if (recieved.getUser().getStatus()==Status.OffLine) {
+									
+									System.out.println(recieved.getUser().getUserName()+" is "+recieved.getUser().getStatus());
 								}
 								
+							}
+							else if(recieved.getType()==MessageType.ChatMessage)
+							{
+							
+							
+								//add to history
+								
+								String name=recieved.getUser().getUserName();
+								
+								if(chatTabs.contains(name)) {
+									
+									setChildChat(name,recieved);
+								
+								
+								}
+								else 
+								 openNewTab(name,recieved);
+								
+							
 							}
 					  }
 		        	}catch (ClassNotFoundException|IOException e) {
@@ -231,6 +293,8 @@ public class ChatController implements Initializable{
 					}
 		          
 		   }
+
+			
 		   
 	 };
 	 
@@ -241,7 +305,38 @@ public class ChatController implements Initializable{
   
 }
 
-		 
+	
+	private void setChildChat(String name,Message recieved) {
+		Platform.runLater(
+				  () -> {
+				    // Update UI here.
+					  
+		 System.out.println("look for " +name );
+			
+			int index=chatTabs.indexOf(recieved.getUser().getUserName())+1;
+		    System.out.println("index for searching for tab = "+index);
+			Tab wanted=tabPane.getTabs().get(index);
+			//javafx.scene.Node node = wanted.getContent();
+			
+			 HBox cell = new HBox();
+               // VBox vbox = new VBox();
+
+                Label sendLabel = new Label(recieved.getUser().getUserName()+" : "+recieved.getMsg());
+                
+                 sendLabel.setMaxWidth(300);
+                sendLabel.setWrapText(true);
+                
+            cell.getChildren().add(sendLabel);
+           // wanted.getContent().lookup(selector)
+            ListView<HBox> listviewChat = (ListView<HBox>) wanted.getContent().lookup("#listviewChat");
+                listviewChat.getItems().add(cell);
+                listviewChat.scrollTo(cell);
+               // txtFieldMsg.setText(null);
+				  }
+				);
+				
+		
+	}
 		 
 	private void showApproveFriendRequestDialog(String name) {
 			
@@ -282,7 +377,7 @@ public class ChatController implements Initializable{
 				 msg.setType(MessageType.ApprovedFriendRequest); 
 				 user.setUserName(result.get());
 				 msg.setUser(user);
-				 boolean done=ClientHome.accessServer(msg);
+				 ClientHome.sendMsgs(msg);
 				 contactsArrayList.add(result.get());
 				 //contactsListTab.getItems().add(result.get());
 				 System.out.println("adding "+result.get());

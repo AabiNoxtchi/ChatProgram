@@ -16,4 +16,9 @@
 		<list key="textArray">
 		</list>
 	</section>
+	<section name="EditorSelectionDialog">
+		<item key="EditorSelectionDialog.STORE_ID_FILE_EXTENSION" value=".fxml"/>
+		<item key="EditorSelectionDialog.STORE_ID_INTERNAL_EXTERNAL" value="true"/>
+		<item key="EditorSelectionDialog.STORE_ID_DESCR" value="D:\Uni-2019\Java\SceneBuilder\SceneBuilder.exe"/>
+	</section>
 </section>

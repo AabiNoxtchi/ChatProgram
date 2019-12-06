@@ -33,6 +33,11 @@ public class ClientHome {
 	static String userIntry;
 	static Socket socket=null;
 	
+	private static String currentuser;
+	public static String getCurrentuser() {
+		return currentuser;
+	}
+	
 	
 	public ClientHome() {
 		
@@ -49,22 +54,41 @@ public class ClientHome {
 			output = new ObjectOutputStream(socket.getOutputStream());
 			if(input==null)
 			input=new ObjectInputStream(socket.getInputStream());
+			
+			
 		}catch(IOException e) {
 			System.out.println("Host ID not found !");
 			System.exit(1);
 		}
 		
-		if(msg.getType()==MessageType.FriendRequest||msg.getType()==MessageType.ApprovedFriendRequest) {
-			try {
-				output.writeObject(msg);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return true;
+		
+		 if(msg.getType()==MessageType.LogIn) {
+			 currentuser=msg.getUser().getUserName();
 		}
 		
 		return writeObj(msg);
 	}
+	
+public static void sendMsgs(Message msg) {
+		
+		try {
+			if(host==null)
+			host=InetAddress.getLocalHost();
+			if(socket==null)
+			socket=new Socket(host,PORT);
+			if(output==null)
+			output = new ObjectOutputStream(socket.getOutputStream());
+			if(input==null)
+			input=new ObjectInputStream(socket.getInputStream());
+			
+			output.writeObject(msg);
+			
+		}catch(IOException e) {
+			System.out.println("Host ID not found !");
+			System.exit(1);
+		}
+	}
+
 
 private static boolean writeObj(Message msg) {
 	try {
@@ -79,5 +103,6 @@ private static boolean writeObj(Message msg) {
 	}
 	return false;
 }
+
 
 }

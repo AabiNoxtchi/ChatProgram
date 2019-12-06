@@ -13,10 +13,14 @@
 <fullyQualifiedTypeName name="java.util.HashSet"/>
 <fullyQualifiedTypeName name="Views.Register"/>
 <fullyQualifiedTypeName name="Views.UserHome"/>
-<fullyQualifiedTypeName name="Messages.MessageType"/>
-<fullyQualifiedTypeName name="java.lang.System"/>
-<fullyQualifiedTypeName name="Messages.User"/>
 <fullyQualifiedTypeName name="Views.LogIn"/>
 <fullyQualifiedTypeName name="java.util.Scanner"/>
 <fullyQualifiedTypeName name="Messages.Message"/>
+<fullyQualifiedTypeName name="java.lang.System"/>
+<fullyQualifiedTypeName name="javafx.fxml.FXMLLoader"/>
+<fullyQualifiedTypeName name="view.ChatBoxController"/>
+<fullyQualifiedTypeName name="Messages.User"/>
+<fullyQualifiedTypeName name="Messages.MessageType"/>
+<fullyQualifiedTypeName name="ClientSocket.ClientHome"/>
+<fullyQualifiedTypeName name="javax.xml.soap.Node"/>
 </qualifiedTypeNameHistroy>

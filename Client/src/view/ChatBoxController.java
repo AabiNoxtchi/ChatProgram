@@ -46,7 +46,10 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import ClientSocket.ClientHome;
 import Messages.Message;
+import Messages.MessageType;
+import Messages.User;
 
 
 /**
@@ -57,184 +60,89 @@ public class ChatBoxController implements Initializable {
 
     @FXML
     private VBox chatBox;
-    @FXML
-    private Label labelFriendName;
-    @FXML
-    private ImageView imgFriendStatus;
-    @FXML
-    private Label labelFriendStatus;
+    
     @FXML
     private TextField txtFieldMsg;
-    @FXML
-    private Button btnSendAttach;
-    @FXML
-    private Image clips;
+   
     @FXML
     private ListView<HBox> listviewChat;
-    @FXML
-    private Button saveBtn;
-    @FXML
-    private ToggleButton boldToggleBtn;
-
-    @FXML
-    private ToggleButton italicTogglebtn;
-
-    @FXML
-    private ToggleButton lineToggleBtn;
-
-    @FXML
-    private ComboBox<String> fontComboBox;
-
-    @FXML
-    private ColorPicker colorPicker;
-
-    @FXML
-    private ComboBox<String> fontSizeComboBox;
-
    
-    String receiver;
-    Message message;
-
-    ArrayList<Message> History = new ArrayList<>();
-
-    Boolean recMsgFlag = true;
-    Boolean sendMsgFlag = true;
-    Boolean conFlag = false;
-
-   
+  
+   // ArrayList<Message> History = new ArrayList<>();
+    private String recipient;
+    private Message Msg;
+    
+    public ChatBoxController(String recipient) {
+    	this.recipient=recipient;
+    }
+    public ChatBoxController(String recipient,Message msg) {
+    	this.recipient=recipient;
+    	this.Msg=msg;
+    }
 
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        customizeEditorPane();
-       // if ((message != null && message..contains("##")) || (receiver != null && receiver.contains("##"))) {
-            btnSendAttach.setDisable(true);
-            saveBtn.setDisable(true);
-
-       // }
-       // if (clientView.getHistory(receiver) != null) {
-       //     loadHistory(clientView.getHistory(receiver));
-       // }
-
-        btnSendAttach.setTooltip(new Tooltip("Send Attachment"));
-        saveBtn.setTooltip(new Tooltip("Save Message"));
+    	if (Msg!=null)setMsginBox(Msg.getUser().getUserName(),Msg.getMsg());
+    	
     }
 
-    @FXML
-    void saveBtnAction(ActionEvent event) {
-        Platform.runLater(() -> {
+    
+    private void sendMessageAction(String chatMsg) {
+    	
+        if (!chatMsg.equals("")) {
 
-            Stage st = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            FileChooser fileChooser = new FileChooser();
-            //Set extension filter
-            fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("xml files (*.xml)", "*.xml")
-            );
-            //Show save file dialog
-            File file = fileChooser.showSaveDialog(st);
-
-          /*  if (file != null) {
-                ArrayList<Message> history = clientView.getHistory(receiver);
-                clientView.saveXMLFile(file, history);
-            }*/
-
-        });
-    }
-
-    @FXML
-    private void btnSendAttachAction(ActionEvent event) {
-
-      
-    }
-
-    private void sendMessageAction() {
-        if (!txtFieldMsg.getText().trim().equals("")) {
+            //Message msg = new Message();
+        	
            
-
-//        String color = "#" + Integer.toHexString(colorPicker.getValue().hashCode());
-            String color = toRGBCode(colorPicker.getValue());
-            String weight = (boldToggleBtn.isSelected()) ? "Bold" : "normal";
-            String size = fontSizeComboBox.getSelectionModel().getSelectedItem();
-            String style = (italicTogglebtn.isSelected()) ? "italic" : "normal";
-            String font = fontComboBox.getSelectionModel().getSelectedItem();
-            Boolean underline = lineToggleBtn.isSelected();
-
-            Message msg = new Message();
-           
-                HBox cell = new HBox();
-                VBox vbox = new VBox();
-
-                Label sendLabel = new Label(txtFieldMsg.getText());
-                sendLabel.setMaxWidth(300);
-                sendLabel.setWrapText(true);
-                sendLabel.setStyle("-fx-text-fill:" + color
-                        + ";-fx-font-weight:" + weight
-                        + ";-fx-font-size:" + size
-                        + ";-fx-font-style:" + style
-                        + ";-fx-font-family:\"" + font
-                        + "\";-fx-underline:" + underline
-                        + ";");
-
-                if (recMsgFlag) {
-
-                    sendLabel.getStyleClass().add("LabelSender");
-                    if (!receiver.contains("##")) {
-                        cell.getChildren().add( sendLabel);
-                    } else {
-                        cell.getChildren().add(sendLabel);
-                    }
-                    recMsgFlag = false;
-                } else {
-                    sendLabel.getStyleClass().add("LabelSenderSec");
-                    cell.getChildren().add(sendLabel);
-                    if (!receiver.contains("##")) {
-                        cell.setMargin(sendLabel, new Insets(0, 0, 0, 32));
-                    }
-                }
-
-                listviewChat.getItems().add(cell);
-                listviewChat.scrollTo(cell);
-                txtFieldMsg.setText(null);
+               setMsginBox("You",chatMsg);
+        	
+        	
+                //add to history
+               
+                User user=new User();
+                user.setUserName(recipient);
+                Message msg=new Message();
+                msg.setUser(user);
+                msg.setMsg(chatMsg);
+                msg.setType(MessageType.ChatMessage);
+                ClientHome.sendMsgs(msg);
                 
                 
-
            
         }
     }
 
-    public void reciveMsg(Message message) throws IOException {
+    private void setMsginBox(String sender,String chatMsg) {
+    	 HBox cell = new HBox();
+         // VBox vbox = new VBox();
+
+          Label sendLabel = new Label(sender+" : "+chatMsg);
+          sendLabel.setMaxWidth(300);
+          sendLabel.setWrapText(true);
+          
+          cell.getChildren().add(sendLabel);
+          
+          listviewChat.getItems().add(cell);
+          listviewChat.scrollTo(cell);
+          txtFieldMsg.setText(null);
+            
+		
+	}
+
+
+	public void reciveMsg(Message message) throws IOException {
 
        
     }
 
-    //handle Enter pressed action on txtFieldMessage and call the sendMessageAction ..
     @FXML
     private void txtFieldOnKeyPressed(KeyEvent event) {
         if (event.getCode().equals(KeyCode.ENTER)) {
-            sendMessageAction();
+        	String chatMsg=txtFieldMsg.getText().trim();
+            sendMessageAction(chatMsg);
         }
     }
 
-    void customizeEditorPane() {
-        ObservableList<String> limitedFonts = FXCollections.observableArrayList("Arial", "Times", "Courier New", "Comic Sans MS");
-        fontComboBox.setItems(limitedFonts);
-        fontComboBox.getSelectionModel().selectFirst();
-
-        ObservableList<String> fontSizes = FXCollections.observableArrayList("8", "10", "12", "14", "18", "24");
-        fontSizeComboBox.setItems(fontSizes);
-        fontSizeComboBox.getSelectionModel().select(2);
-
-        colorPicker.setValue(Color.BLACK);
-    }
-
    
-
-   
-
-   
-    public static String toRGBCode(Color color) {
-        return String.format("#%02X%02X%02X",
-                (int) (color.getRed() * 255),
-                (int) (color.getGreen() * 255),
-                (int) (color.getBlue() * 255));
-    }
 }

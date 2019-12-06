@@ -30,11 +30,7 @@
                               <Font size="13.0" />
                            </font>
                         </Label>
-                        <ComboBox prefHeight="25.0" prefWidth="107.0" promptText="active">
-                           <VBox.margin>
-                              <Insets bottom="5.0" left="10.0" />
-                           </VBox.margin>
-                        </ComboBox>
+                        
                      </children>
                   </VBox>
                </children>

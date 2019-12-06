@@ -29,7 +29,9 @@ public class Server {
 	private static HashMap<String,Integer> usersHashCodes = new HashMap<String,Integer>();
 	private static HashMap<String,LinkedList<Message>> offlineMsgs = new HashMap<String,LinkedList<Message>>();
 	
-	//every online user has to have his friends list fetched from data base 
+	//every user has to have his friends list fetched from data base 	
+	private static HashMap<String,HashSet<String>> friendsLists = new HashMap<String,HashSet<String>>();
+	
 	//private static ArrayList<User> onLineUsers = new ArrayList<User>();
 	private static HashMap<String,ObjectOutputStream> onlineUserMapping=new HashMap<String,ObjectOutputStream>();
 
@@ -104,14 +106,24 @@ public class Server {
 				                            break;
 				                            
 			                           case FriendRequest:
-			                        	   boolean friendRequestSent=sendFriendRequest(msg.getUser());
+			                        	  // boolean friendRequestSent=
+			                        	   sendFriendRequest(msg.getUser());
 			                        	   System.out.println("recieved friend request");
 			                        	   //need to make this msg of type Message
 			                        	   //output.writeObject(friendRequestSent); 
 			                        	   break;
 			                        	   
 			                           case ApprovedFriendRequest:			                        	  
-			                        	   boolean approvedFriendRequestSent=addToFriendList(currentUser,msg.getUser());
+			                        	  // boolean approvedFriendRequestSent=
+			                        	   addToFriendList(currentUser,msg.getUser());
+			                        	   addToFriendList(msg.getUser(),currentUser);
+			                        	   
+			                        	   //need to make this msg of type Message
+			                        	   //output.writeObject(approvedFriendRequestSent); 
+			                        	   break;
+			                        	   
+			                           case ChatMessage:			                        	  
+			                        	   forwardChatMsgs(msg);
 			                        	   //need to make this msg of type Message
 			                        	   //output.writeObject(approvedFriendRequestSent); 
 			                        	   break;
@@ -127,17 +139,69 @@ public class Server {
 						
 					} 
 	             
-	             onlineUserMapping.remove(currentUser.getUserName());
+	             
+	            currentUser.setStatus(Status.OffLine);								
+				notifyFriendsListUserCameOnline(currentUser);	
+	            onlineUserMapping.remove(currentUser.getUserName());
+		}
+		
+		private void forwardChatMsgs(Message msg) {
+			
+			String userName=msg.getUser().getUserName();
+			msg.setUser(currentUser);
+			if(onlineUserMapping.containsKey(userName))
+			{
+				try {
+					onlineUserMapping.get(userName).writeObject(msg);
+				} catch (IOException e) {
+					
+					e.printStackTrace();
+				}
+				
+			}else {
+				
+				if(offlineMsgs.containsKey(userName)) {
+					
+					offlineMsgs.get(userName).add(msg);
+					
+				}else {
+					LinkedList<Message> msgs=new LinkedList<Message>();
+					msgs.add(msg);
+					offlineMsgs.put(userName,msgs);
+				}
+				
+			}
 		}
 
 		
-		private boolean addToFriendList(User currentUser,User user) {
-			currentUser.getFriendsList().add(user);
+		private boolean addToFriendList(User user,User friend) {
 			
-			Message msg=CheckFriendStatus(user);
+			if(friendsLists.containsKey(user.getUserName()))
+			{
+				if(!friendsLists.get(user.getUserName()).contains(friend.getUserName()))
+				friendsLists.get(user.getUserName()).add(friend.getUserName());
+			
+			}else {
+				HashSet<String> friendList=new HashSet<String>();
+				
+				friendList.add(friend.getUserName());
+				friendsLists.put(user.getUserName(),friendList);
+			}
+			
+			
+			
+			Message msg=CheckFriendStatus(friend);
 			
 			try {
+				if(user.getUserName()==currentUser.getUserName())
 				output.writeObject(msg);
+				else
+				{
+					if(onlineUserMapping.containsKey(user.getUserName())) {
+						onlineUserMapping.get(user.getUserName()).writeObject(msg);
+					}
+				}
+					
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -148,8 +212,14 @@ public class Server {
 
 		private Message CheckFriendStatus(User user) {
 			
-			if(onlineUserMapping.containsKey(user))
+			if(user.getUserName()==currentUser.getUserName())
+				user.setStatus(Status.Online);
+			else {
+			if(onlineUserMapping.containsKey(user.getUserName()))
 			user.setStatus(Status.Online);
+			else
+				user.setStatus(Status.OffLine);
+			}
 			Message msg=new Message();
 			msg.setType(MessageType.StatusChanged);
 			msg.setUser(user);
@@ -188,7 +258,7 @@ public class Server {
 			msg.setType(MessageType.FriendRequest);
 			msg.setUser(currentUser);
 			boolean sentFriendRequest=notify(msg,user);
-			addToFriendList(currentUser, user);
+			//addToFriendList(currentUser, user);
 			return sentFriendRequest;
 		}
 		
@@ -240,21 +310,25 @@ public class Server {
 		}
 
 		private void notifyFriendsListUserCameOnline(User user) {
+			if(friendsLists.containsKey(user.getUserName())) {
+				
 			Message msg=new Message();
 			msg.setType(MessageType.StatusChanged);
 			msg.setUser(user);
-			for(User friend:user.getFriendsList())
+			
+			for(String friend:friendsLists.get(user.getUserName()))
 			{
-				if(onlineUserMapping.containsKey(friend.getUserName()))
+				if(onlineUserMapping.containsKey(friend))
 				{
 					try {
-						System.out.println("Sending user's offline msgs !");
-						onlineUserMapping.get(friend.getUserName()).writeObject(msg);
+						System.out.println("Sending user's friends msg he is online !");
+						onlineUserMapping.get(friend).writeObject(msg);
 					} catch (IOException e) {
 						
 						e.printStackTrace();
 					}
 				}
+			}
 			}
 			
 		}

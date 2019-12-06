@@ -18,7 +18,7 @@ public class User implements Serializable{
     
     private Status status=Status.OffLine;
     
-    private HashSet<User> friendsList=new HashSet<User>();
+   // private HashSet<User> friendsList=new HashSet<User>();
     
 	
 	public String getFirstName() {
@@ -57,12 +57,12 @@ public class User implements Serializable{
 	public void setStatus(Status status) {
 		this.status = status;
 	}
-	public HashSet<User> getFriendsList() {
+	/*public HashSet<User> getFriendsList() {
 		return friendsList;
 	}
 	public void setFriendsList(HashSet<User> friendsList) {
 		this.friendsList = friendsList;
-	}
+	}*/
 	
 	
 	@Override
@@ -83,7 +83,7 @@ public class User implements Serializable{
 	public int hashCode() {
 		
 		int result=17;
-		result*=getFirstName().hashCode()+getLastName().hashCode()+getEmail().hashCode()+getUserName().hashCode()+getPassword().hashCode();
+		result*=getUserName().hashCode();//getFirstName().hashCode()+getLastName().hashCode()+getEmail().hashCode()+getPassword().hashCode();
 		return result;
 	}
 	
