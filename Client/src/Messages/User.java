@@ -6,6 +6,15 @@ import java.util.LinkedList;
 
 public class User implements Serializable{
 	
+	 private Status status;
+		
+		public Status getStatus() {
+			return status;
+		}
+		public void setStatus(Status status) {
+			this.status = status;
+		}
+	
     private String firstName;
     
     private String lastName;
@@ -16,7 +25,7 @@ public class User implements Serializable{
 	
 	private String Password;	
     
-    private Status status=Status.OffLine;
+    
     
    // private HashSet<User> friendsList=new HashSet<User>();
     
@@ -51,12 +60,7 @@ public class User implements Serializable{
 	public void setPassword(String password) {
 		Password = password;
 	}
-	public Status getStatus() {
-		return status;
-	}
-	public void setStatus(Status status) {
-		this.status = status;
-	}
+	
 	/*public HashSet<User> getFriendsList() {
 		return friendsList;
 	}
@@ -83,9 +87,23 @@ public class User implements Serializable{
 	public int hashCode() {
 		
 		int result=17;
-		result*=getUserName().hashCode();//getFirstName().hashCode()+getLastName().hashCode()+getEmail().hashCode()+getPassword().hashCode();
+		result*=37*getUserName().hashCode();//getFirstName().hashCode()+getLastName().hashCode()+getEmail().hashCode()+getPassword().hashCode();
 		return result;
 	}
+	
+public int registerhashCode() {
+		
+		int result=17;
+		result*=37*(getUserName().hashCode()+getFirstName().hashCode()+getLastName().hashCode()+getEmail().hashCode()+getPassword().hashCode());
+		return result;
+	}
+
+public int loginhashCode() {
+	
+	int result=17;
+	result*=37*(getUserName().hashCode()+getPassword().hashCode());
+	return result;
+}
 	
 	
 

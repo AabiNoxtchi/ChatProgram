@@ -10,7 +10,6 @@
 <fullyQualifiedTypeName name="java.awt.TrayIcon.MessageType"/>
 <fullyQualifiedTypeName name="java.io.ObjectInputStream"/>
 <fullyQualifiedTypeName name="java.util.ArrayList"/>
-<fullyQualifiedTypeName name="java.util.HashSet"/>
 <fullyQualifiedTypeName name="Views.Register"/>
 <fullyQualifiedTypeName name="Views.UserHome"/>
 <fullyQualifiedTypeName name="Views.LogIn"/>
@@ -23,4 +22,9 @@
 <fullyQualifiedTypeName name="Messages.MessageType"/>
 <fullyQualifiedTypeName name="ClientSocket.ClientHome"/>
 <fullyQualifiedTypeName name="javax.xml.soap.Node"/>
+<fullyQualifiedTypeName name="java.util.HashMap"/>
+<fullyQualifiedTypeName name="java.util.HashSet"/>
+<fullyQualifiedTypeName name="java.awt.List"/>
+<fullyQualifiedTypeName name="Server.Server.ClientListner"/>
+<fullyQualifiedTypeName name="Messages.Status"/>
 </qualifiedTypeNameHistroy>

@@ -254,17 +254,12 @@ public class ChatController implements Initializable{
 								
 								//friendrequestsArrayList.add(recieved.getUser().getUserName());
 								//for(String name:friendrequestsArrayList)
-									requestsListview.getItems().add(recieved.getUser().getUserName());
+									requestsListview.getItems().add(recieved.getUser().getUserName());//exception just in first client ???
 								
 								}
-							else if(recieved.getType()==MessageType.StatusChanged) {
-								if(recieved.getUser().getStatus()==Status.Online) {
+							else if(recieved.getType()==MessageType.StatusChanged) {								
 									
-									System.out.println(recieved.getUser().getUserName()+" is "+recieved.getUser().getStatus());
-								}else if (recieved.getUser().getStatus()==Status.OffLine) {
-									
-									System.out.println(recieved.getUser().getUserName()+" is "+recieved.getUser().getStatus());
-								}
+								System.out.println(recieved.getUser().getUserName()+" is "+recieved.getUser().getStatus());								
 								
 							}
 							else if(recieved.getType()==MessageType.ChatMessage)
