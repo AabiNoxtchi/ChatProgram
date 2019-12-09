@@ -27,4 +27,5 @@
 <fullyQualifiedTypeName name="java.awt.List"/>
 <fullyQualifiedTypeName name="Server.Server.ClientListner"/>
 <fullyQualifiedTypeName name="Messages.Status"/>
+<fullyQualifiedTypeName name="javafx.scene.text.Text"/>
 </qualifiedTypeNameHistroy>

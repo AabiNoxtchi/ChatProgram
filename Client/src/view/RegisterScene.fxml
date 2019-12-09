@@ -11,6 +11,7 @@
             <Font size="37.0" />
          </font>
       </Text>
+      <Text fx:id="txtRegisterError" fill="#dd0101" layoutX="40.0" layoutY="85.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" wrappingWidth="10.0" />
       <TextField layoutX="48.0" layoutY="117.0" promptText="first name" fx:id="txtFirstName"/>
       <TextField layoutX="223.0" layoutY="117.0" promptText="last name" fx:id="txtLastName"/>
       <TextField layoutX="48.0" layoutY="188.0" promptText="username" fx:id="txtUserName"/>

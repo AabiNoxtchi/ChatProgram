@@ -13,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -31,6 +32,9 @@ public class LoginController {
 
     @FXML
     private Hyperlink linkCreateAccount;
+    
+    @FXML
+    private Text txtLogInError;
 
    // private ClientHome clientHome;
 
@@ -38,7 +42,7 @@ public class LoginController {
     private void btnLoginAction(ActionEvent event) {
         try {
 
-            String errorMsg = "";
+            
 
             String username = txtUserName.getText();
             String password = txtPassword.getText();
@@ -54,10 +58,12 @@ public class LoginController {
            //ClientHome clientHome=new ClientHome();
            boolean done=ClientHome.accessServer(message);
            if(done) {
+        	   
+        	   txtLogInError.setText("");
         	   try {
        			((Node) (event.getSource())).getScene().getWindow().hide();
                    Parent parent = FXMLLoader.load(getClass().getResource("ChatScene.fxml"));			
-                   Stage stage = new Stage();
+                   Stage stage = new Stage();                   
                    Scene scene = new Scene(parent);
                    stage.setScene(scene);
                    stage.setResizable(false);
@@ -68,6 +74,9 @@ public class LoginController {
        				e.printStackTrace();
        			}
         	   
+           }else {
+        	   txtLogInError.setText("Wrong User name or Password !!!");
+        	   txtLogInError.setWrappingWidth(500);
            }
 
         } catch (Exception ex) {

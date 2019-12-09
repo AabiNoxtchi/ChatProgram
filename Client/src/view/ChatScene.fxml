@@ -89,7 +89,7 @@
                            <content>
                               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
-                                    <ListView fx:id="contactsListTab" onMouseClicked="#chatwithconatct" prefHeight="291.0" prefWidth="200.0" style="-fx-background-color: #FFF0CC;" />
+                                    <ListView fx:id="contactsListTab" onMouseClicked="#chatwithcontact" prefHeight="291.0" prefWidth="200.0" style="-fx-background-color: #FFF0CC;" />
                                  </children>
                               </AnchorPane>
                            </content>
@@ -98,7 +98,7 @@
                            <content>
                               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="170.0" prefWidth="198.0">
                                  <children>
-                                    <ListView fx:id="requestsListview" prefHeight="352.0" prefWidth="199.0" />
+                                    <ListView fx:id="requestsListview" onMouseClicked="#ApproveFriendRequests" prefHeight="352.0" prefWidth="199.0" />
                                  </children>
                               </AnchorPane>
                            </content>

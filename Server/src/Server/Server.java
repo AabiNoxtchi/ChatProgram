@@ -93,11 +93,14 @@ public class Server {
 			                                
 			                           case LogIn:                      	   
 		                                    boolean loggedIn= LogIn(msg.getUser());		                            									
-											output.writeObject(loggedIn); 
-											setcurrentUser(msg.getUser(),Status.Online);
-											
+											output.writeObject(loggedIn);
+											if(loggedIn) {
+											setcurrentUser(msg.getUser(),Status.Online);											
+											notifyFriendsListUserStatusChanged();
+											//send all friends status msgs
 											getOfflineMsgs();
-											notifyFriendsListUserStatusChanged();	
+											}
+												
 				                            break;
 				                            
 			                           case FriendRequest:			                        	 

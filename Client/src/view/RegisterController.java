@@ -15,6 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class RegisterController {
@@ -35,6 +36,8 @@ public class RegisterController {
 
 	    @FXML
 	    private Button btnRegister;
+	    
+	    @FXML Text txtRegisterError;
 	    
 	    @FXML
 	    private void btnRegisterAction(ActionEvent event) {
@@ -62,7 +65,11 @@ public class RegisterController {
 	           //ClientHome clientHome=new ClientHome();
 	           boolean done= ClientHome.accessServer(message);
 	           if(done) {
+	        	   txtRegisterError.setText("");
 	        	   continueToLoginScene(event);        	   
+	           }else {
+	        	   txtRegisterError.setText("Error in Register Fields ,User name already exists ! ");
+	        	   txtRegisterError.setWrappingWidth(600);
 	           }
 
 	        } catch (Exception ex) {

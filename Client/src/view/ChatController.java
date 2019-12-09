@@ -2,6 +2,8 @@ package view;
 
 
 import javafx.scene.control.Label;
+import javafx.scene.control.Labeled;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -16,7 +18,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 
-
+import javax.xml.soap.Node;
 
 import ClientSocket.ClientHome;
 import Messages.Message;
@@ -40,6 +42,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -54,14 +57,6 @@ public class ChatController implements Initializable{
 	
 	@FXML
 	private Label homeLabel;
-
-	@FXML
-	private ListView<String> requestsListview=new ListView<String>();
-	
-	@FXML
-	private ListView<String> contactsListTab=new ListView<String>();
-		
-	
     @FXML
     private TabPane tabPane;
     @FXML
@@ -70,33 +65,34 @@ public class ChatController implements Initializable{
     private SplitPane splitPane;
     @FXML
     private VBox leftPane;
-	
-	static ObjectInputStream input;
-	static ArrayList<String> friendrequestsArrayList =new ArrayList<String>();
-	ObservableList<String> contactsArrayList = FXCollections.observableArrayList();
-	static ArrayList<String> chatTabs=new ArrayList<String>();
+    @FXML
+	private ListView<String> requestsListview=new ListView<String>();	
+	@FXML
+	private ListView<String> contactsListTab=new ListView<String>();
 	
 	private static String currentuser;
-
 	
-	//take contacts from data base
-	//static ArrayList<String> contactsArrayList =new ArrayList<String>();
-	
+	static ObjectInputStream input;
+	static ArrayList<String> chatTabs=new ArrayList<String>();
+	static ArrayList<ChatBoxController> chatboxControllers=new ArrayList<ChatBoxController>();
+	ObservableList<String> friendrequestsList =FXCollections.observableArrayList();
+	ObservableList<String> contactsList = FXCollections.observableArrayList();	
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		
-		currentuser=ClientHome.getCurrentuser();
+		currentuser=ClientHome.getCurrentUser();
 		homeLabel.setText(currentuser);
 		input=ClientHome.getInput();
 		SetFriendsList();
-		recieveNotifications();
+		SetRequestsList();
+		Reciever reciever = new Reciever();
+		reciever.start();
 		
 		splitPane.setDividerPositions(0.3246);
         leftPane.maxWidthProperty().bind(splitPane.widthProperty().multiply(0.3246));
-       // tabPane= new TabPane();
         tabPane.maxWidthProperty().bind(splitPane.widthProperty().multiply(0.6546));
-       
+//      tabPane= new TabPane();
 
         try {
             homeBox.setContent(FXMLLoader.load(getClass().getResource("HomeBox.fxml")));
@@ -106,21 +102,33 @@ public class ChatController implements Initializable{
 
 	}
 	
-	
-    private void SetFriendsList() {
-		//for(String name:contactsArrayList)
-			//contactsListTab.getItems().add(name);
-		contactsListTab.setItems(contactsArrayList);
+	 private void SetRequestsList() {
+		 requestsListview.setItems(friendrequestsList);
 		
 	}
-    
-    @FXML
-    public void iconAddNewFriendAction(MouseEvent event) {
-		
-		
 
+	private void SetFriendsList() {
+			// fill contactsList from data base // 
+			contactsListTab.setItems(contactsList);
+			
+		}
+	    
+	@FXML
+	private void ApproveFriendRequests(MouseEvent event) {
+		 String friendName=requestsListview.getSelectionModel().getSelectedItem().toString();
+    	 if(showDialog(friendName,"Text","Accept Friend Request","Friend request from : ",MessageType.ApprovedFriendRequest))
+    	 {
+    		 friendrequestsList.remove(friendName); 	   
+		     System.out.println("approved friend request from  "+friendName);
+    	 }
+	}
+	
+	private boolean showDialog(String name,String TextFieldType,String title,String text,MessageType msgType) {
+		
+		
+		
 		 Dialog<String> dialog = new Dialog<>();
-		 dialog.setTitle("Add New Friend");
+		 dialog.setTitle(title);
 		
 		 ButtonType addButtonType = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
 		 dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
@@ -130,42 +138,75 @@ public class ChatController implements Initializable{
 		 grid.setVgap(10);
 		 grid.setPadding(new javafx.geometry.Insets(20, 150, 10, 10));
 		
-		 TextField txtFieldUserName = new TextField();
-		 txtFieldUserName.setPromptText("username");
-		
 		 
+		 if(TextFieldType=="TextField")
+		 {
+			 TextField txtFieldUserName = new TextField();
+			 grid.add(new Text(text), 0, 0);
+			 grid.add(txtFieldUserName, 1, 0);
+			   
+			 dialog.getDialogPane().setContent(grid);
+			
+			 // Request focus on the txtFieldUserName field by default.
+			 Platform.runLater(() ->  txtFieldUserName.requestFocus());
+			
+			 dialog.setResultConverter(dialogButton -> {
+			     if (dialogButton == addButtonType) {
+			    	 
+			    		 return new String( txtFieldUserName.getText());
+			     }
+			     return null;
+			 });
+		 }
+		 else
+		 {
+			 Text txtFieldUserName = new Text();
+		     txtFieldUserName.setText(name);
+		     grid.add(new Text(text), 0, 0);
+			 grid.add(txtFieldUserName, 1, 0);
+			   
+			 dialog.getDialogPane().setContent(grid);
+			
+			 // Request focus on the txtFieldUserName field by default.
+			 Platform.runLater(() ->  txtFieldUserName.requestFocus());
+			
+			 dialog.setResultConverter(dialogButton -> {
+			     if (dialogButton == addButtonType) {
+			    	
+						 return new String (txtFieldUserName.getText());
+					
+			        
+			     }
+			     return null;
+			 });
+		 }
 		
-		 grid.add(new Text("User Name :"), 0, 0);
-		 grid.add(txtFieldUserName, 1, 0);
 		
-		 
-		
-		   
-		 dialog.getDialogPane().setContent(grid);
-		
-		 // Request focus on the txtFieldEmail field by default.
-		 Platform.runLater(() -> txtFieldUserName.requestFocus());
-		
-		 dialog.setResultConverter(dialogButton -> {
-		     if (dialogButton == addButtonType) {
-		         return new String(txtFieldUserName.getText());
-		     }
-		     return null;
-		 });
 		
 		
 		 Optional<String> result = dialog.showAndWait();
-		 result.ifPresent(userName->{
-		 Message msg=new Message();
+		 result.ifPresent(userName->{		
 		 User user=new User();
-		 msg.setType(MessageType.FriendRequest); 
-		 user.setUserName(result.get());
+		 user.setUserName(userName);
+		 Message msg=new Message();
+		 msg.setType(msgType);		 
 		 msg.setUser(user);
-		ClientHome.sendMsgs(msg);
-		 //add to friend list
-		// contactsListTab.getItems().add(userName);
-		 contactsArrayList.add(result.get());
+		 ClientHome.sendMsgs(msg);
+		 
+		 contactsList.add(userName);
+		 
 		 });
+		 
+		 return result.isPresent();
+		
+	}
+    
+    @FXML
+    public void iconAddNewFriendAction(MouseEvent event) {
+    	
+    	if(showDialog("","TextField","Add New Friend","User Name :",MessageType.FriendRequest))
+    		System.out.println("adding new friend  ");
+		
 	}		
 	
 	@FXML
@@ -175,219 +216,119 @@ public class ChatController implements Initializable{
 	public void iconLogoutAction (MouseEvent event) {	}
 	
 	@FXML
-	public void chatwithconatct(MouseEvent event) {
+	public void chatwithcontact(MouseEvent event) {
 		String name=contactsListTab.getSelectionModel().getSelectedItem().toString();
 		if(chatTabs.contains(name))
 		 System.out.println("clicked on " +name );
 		else 
 		 openNewTab(name,null);
-		
-		 
-		 
 	}
 	
 	private void openNewTab(String name,Message msg) {
 		Platform.runLater(
 				  () -> {
-				    // Update UI here.
 				 
 		System.out.println("starting chat with "+name);			
+		ChatBoxController controller=null;		
 		 Tab newtab=new Tab(name);
 		 try {
-			 //
-			
-			 ChatBoxController controller= new ChatBoxController(name,msg);
+			 controller= new ChatBoxController(name,msg);
 			 FXMLLoader loader=new FXMLLoader(getClass().getResource("ChatBox.fxml"));
-			 loader.setController(controller);
-			 newtab.setContent(loader.load());
-			 
-			// newtab.setContent(FXMLLoader.load(getClass().getResource("ChatBox.fxml")));
+			 loader.setController(controller);			
+			 newtab.setContent(loader.load());	 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		 
+		 //tabs index start from 1,,ArrayList index from 0
 		 int index= tabPane.getTabs().size();
-		 System.out.println("index = "+tabPane.getTabs().size());
-		 tabPane.getTabs().add( 
-                tabPane.getTabs().size(), newtab); 
+		 System.out.println("tab pane index = "+tabPane.getTabs().size());
+		 tabPane.getTabs().add(tabPane.getTabs().size(), newtab); 
 		 
-		// tabPane.getTabs().add(newtab); 
-
-        tabPane.getSelectionModel().select( 
-                tabPane.getTabs().size()-1); 
-		
-		// tabPane.getSelectionModel().select(newtab);
-		 
+        tabPane.getSelectionModel().select( tabPane.getTabs().size()-1); 
+        
 		 chatTabs.add(index-1, name);
-		 System.out.println("index of name in chat array = "+chatTabs.indexOf(name));
+		 chatboxControllers.add(index-1,controller);
+		 System.out.println("chatboxcontrollers at "+ (index-1) +" = "+chatboxControllers.get(index-1).getClass().getName());
 				  }
 				);
 	}
 
-
-	public void recieveNotifications (){
+	private void sendChatMsgToTab(String sender,Message recieved) {
+		Platform.runLater(
+				  () -> {
+					  
+		    System.out.println("looking for " +sender+" controller" );
+			
+			int index=chatTabs.indexOf(recieved.getUser().getUserName());
+		    System.out.println("index for sender controller = "+index);
+		    
+			ChatBoxController controller=chatboxControllers.get(index);
+			String chatMsg=recieved.getMsg();
+			controller.setMsginBox(sender, chatMsg);
+		    
+				  });
+	}
+	
+	private void addFriendRequest(Message recieved) {
+		Platform.runLater(
+				  () -> {
+		requestsListview.getItems().add(recieved.getUser().getUserName());//exception just in first client ???Not on FX thread :solved
+				  });
 		
-		 Runnable thread = new Runnable()
-		   {
+	}
+	
+	private void setContactsListStatusChanged(Message recieved) {
+		Platform.runLater(
+				  () -> {
+					  System.out.println(recieved.getUser().getUserName()+" is "+recieved.getUser().getStatus());	
+					 //green or grey something in contacts list view to show status 
+				  });
+				 
+		
+	}
+		 
+		    
+	class Reciever extends Thread{
+		
+		 
 		     public void run()
 		     {
-		    	 requestsListview.setOnMouseClicked(event->
-			     {
-			    	 String selectedRequest=requestsListview.getSelectionModel().getSelectedItem().toString();
-			    	 showApproveFriendRequestDialog(selectedRequest);
-			    	 friendrequestsArrayList.remove(selectedRequest);
-			    	 requestsListview.getItems().remove(selectedRequest);
-			     });
+		    	 System.out.println("Starting thread reciever from server..");	
 		    	 
-		    	 
-		        
 		        	try {
 		        		while(true)
 				        {
-		        	Message recieved = (Message)input.readObject();
-		        	System.out.println("recieved msg"+recieved.getType());
-					
+				        	Message recieved = (Message)input.readObject();
+				        	System.out.println("recieved msg"+recieved.getType());							
 						
-							//ChatController.getInstance().recieveNotifications(recieved);
 							if(recieved.getType()==MessageType.FriendRequest)
-								{
-								
-								//friendrequestsArrayList.add(recieved.getUser().getUserName());
-								//for(String name:friendrequestsArrayList)
-									requestsListview.getItems().add(recieved.getUser().getUserName());//exception just in first client ???
-								
-								}
-							else if(recieved.getType()==MessageType.StatusChanged) {								
-									
-								System.out.println(recieved.getUser().getUserName()+" is "+recieved.getUser().getStatus());								
-								
+							{
+								    addFriendRequest(recieved);									
+							}
+							else if(recieved.getType()==MessageType.StatusChanged) 
+							{	
+								setContactsListStatusChanged(recieved);
+															
 							}
 							else if(recieved.getType()==MessageType.ChatMessage)
-							{
-							
-							
-								//add to history
-								
-								String name=recieved.getUser().getUserName();
-								
-								if(chatTabs.contains(name)) {
-									
-									setChildChat(name,recieved);
-								
-								
+							{								
+								String sender=recieved.getUser().getUserName();								
+								if(chatTabs.contains(sender)) 
+								{									
+									sendChatMsgToTab(sender,recieved);					
 								}
 								else 
-								 openNewTab(name,recieved);
-								
-							
+								    openNewTab(sender,recieved);
 							}
 					  }
 		        	}catch (ClassNotFoundException|IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-		          
 		   }
 
 			
-		   
-	 };
-	 
-	   System.out.println("Starting thread recieve from server..");
-	   new Thread(thread).start();    //
-	  // System.out.println("Returning");
-	   //return;
-  
-}
-
-	
-	private void setChildChat(String name,Message recieved) {
-		Platform.runLater(
-				  () -> {
-				    // Update UI here.
-					  
-		 System.out.println("look for " +name );
-			
-			int index=chatTabs.indexOf(recieved.getUser().getUserName())+1;
-		    System.out.println("index for searching for tab = "+index);
-			Tab wanted=tabPane.getTabs().get(index);
-			//javafx.scene.Node node = wanted.getContent();
-			
-			 HBox cell = new HBox();
-               // VBox vbox = new VBox();
-
-                Label sendLabel = new Label(recieved.getUser().getUserName()+" : "+recieved.getMsg());
-                
-                 sendLabel.setMaxWidth(300);
-                sendLabel.setWrapText(true);
-                
-            cell.getChildren().add(sendLabel);
-           // wanted.getContent().lookup(selector)
-            ListView<HBox> listviewChat = (ListView<HBox>) wanted.getContent().lookup("#listviewChat");
-                listviewChat.getItems().add(cell);
-                listviewChat.scrollTo(cell);
-               // txtFieldMsg.setText(null);
-				  }
-				);
-				
-		
-	}
-		 
-	private void showApproveFriendRequestDialog(String name) {
-			
-				 Dialog<String> dialog = new Dialog<>();
-				 dialog.setTitle("Accept Friend Request");
-				
-				 ButtonType addButtonType = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
-				 dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
-				
-				 GridPane grid = new GridPane();
-				 grid.setHgap(10);
-				 grid.setVgap(10);
-				 grid.setPadding(new javafx.geometry.Insets(20, 150, 10, 10));
-				
-				 Text txtFieldUserName = new Text();
-				 txtFieldUserName.setText(name);
-				
-				 grid.add(new Text("Friend request from : "), 0, 0);
-				 grid.add(txtFieldUserName, 1, 0);
-				   
-				 dialog.getDialogPane().setContent(grid);
-				
-				 // Request focus on the txtFieldEmail field by default.
-				 Platform.runLater(() -> txtFieldUserName.requestFocus());
-				
-				 dialog.setResultConverter(dialogButton -> {
-				     if (dialogButton == addButtonType) {
-				         return new String(txtFieldUserName.getText());
-				     }
-				     return null;
-				 });
-				
-				
-				 Optional<String> result = dialog.showAndWait();
-				 result.ifPresent(userName->{
-				 Message msg=new Message();
-				 User user=new User();
-				 msg.setType(MessageType.ApprovedFriendRequest); 
-				 user.setUserName(result.get());
-				 msg.setUser(user);
-				 ClientHome.sendMsgs(msg);
-				 contactsArrayList.add(result.get());
-				 //contactsListTab.getItems().add(result.get());
-				 System.out.println("adding "+result.get());
-				 
-				 
-				 });
-				
-			}
-		     
-		    
-		  
-	
-
-	    
-	   
+   }
 
 }
 

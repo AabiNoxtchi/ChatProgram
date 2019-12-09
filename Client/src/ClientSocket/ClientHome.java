@@ -29,63 +29,35 @@ public class ClientHome {
 	}
 
 
-	static Scanner scanner=new Scanner(System.in);
-	static String userIntry;
+	//static Scanner scanner=new Scanner(System.in);
+	//static String userIntry;
 	static Socket socket=null;
 	
 	private static String currentuser;
-	public static String getCurrentuser() {
+	public static String getCurrentUser() {
 		return currentuser;
 	}
 	
+//	
+//	public ClientHome() {	}
 	
-	public ClientHome() {
-		
-	
-	}
-	public static boolean accessServer(Message msg) {
-		
-		try {
-			if(host==null)
-			host=InetAddress.getLocalHost();
-			if(socket==null)
-			socket=new Socket(host,PORT);
-			if(output==null)
-			output = new ObjectOutputStream(socket.getOutputStream());
-			if(input==null)
-			input=new ObjectInputStream(socket.getInputStream());
-			
-			
-		}catch(IOException e) {
-			System.out.println("Host ID not found !");
-			System.exit(1);
-		}
-		
-		
-		 if(msg.getType()==MessageType.LogIn) {
+	public static boolean accessServer(Message msg) {		
+		populateVariables();
+		boolean done=writeObj(msg);
+		 if(msg.getType()==MessageType.LogIn && done) {
 			 currentuser=msg.getUser().getUserName();
 		}
 		
-		return writeObj(msg);
+		return done;
 	}
-	
-public static void sendMsgs(Message msg) {
+
+	public static void sendMsgs(Message msg) {
+		populateVariables();
 		
-		try {
-			if(host==null)
-			host=InetAddress.getLocalHost();
-			if(socket==null)
-			socket=new Socket(host,PORT);
-			if(output==null)
-			output = new ObjectOutputStream(socket.getOutputStream());
-			if(input==null)
-			input=new ObjectInputStream(socket.getInputStream());
-			
-			output.writeObject(msg);
-			
+		try {						
+			output.writeObject(msg);			
 		}catch(IOException e) {
-			System.out.println("Host ID not found !");
-			System.exit(1);
+			e.printStackTrace();
 		}
 	}
 
@@ -102,6 +74,23 @@ private static boolean writeObj(Message msg) {
 		e.printStackTrace();
 	}
 	return false;
+}
+
+private static void populateVariables() {
+	try {
+		if(host==null)
+		host=InetAddress.getLocalHost();
+		if(socket==null)
+		socket=new Socket(host,PORT);
+		if(output==null)
+		output = new ObjectOutputStream(socket.getOutputStream());
+		if(input==null)
+		input=new ObjectInputStream(socket.getInputStream());
+	}catch(IOException e) {
+		System.out.println("Host ID not found !");
+		System.exit(1);
+	}
+
 }
 
 

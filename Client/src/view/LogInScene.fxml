@@ -11,6 +11,7 @@
             <Font size="37.0" />
          </font>
       </Text>
+       <Text fx:id="txtLogInError" fill="#dd0101" layoutX="140.0" layoutY="100.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" />
       <Text fill="#000000b6" layoutX="134.0" layoutY="114.0" strokeType="OUTSIDE" strokeWidth="0.0" text="username" />
       <Text fill="#000000b6" layoutX="134.0" layoutY="191.0" strokeType="OUTSIDE" strokeWidth="0.0" text="password" />
       <TextField layoutX="135.0" layoutY="129.0" promptText="username" fx:id="txtUserName" />

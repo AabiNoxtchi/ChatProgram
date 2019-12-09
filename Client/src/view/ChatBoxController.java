@@ -113,7 +113,7 @@ public class ChatBoxController implements Initializable {
         }
     }
 
-    private void setMsginBox(String sender,String chatMsg) {
+    public void setMsginBox(String sender,String chatMsg) {
     	 HBox cell = new HBox();
          // VBox vbox = new VBox();
 
