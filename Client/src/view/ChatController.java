@@ -34,6 +34,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.ListCell;
@@ -68,7 +69,7 @@ public class ChatController implements Initializable{
     @FXML
 	private ListView<String> requestsListview=new ListView<String>();	
 	@FXML
-	private ListView<String> contactsListTab=new ListView<String>();
+	private ListView<CheckBox> contactsListTab=new ListView<CheckBox>();
 	
 	private static String currentuser;
 	
@@ -76,7 +77,7 @@ public class ChatController implements Initializable{
 	static ArrayList<String> chatTabs=new ArrayList<String>();
 	static ArrayList<ChatBoxController> chatboxControllers=new ArrayList<ChatBoxController>();
 	ObservableList<String> friendrequestsList =FXCollections.observableArrayList();
-	ObservableList<String> contactsList = FXCollections.observableArrayList();	
+	ObservableList<CheckBox> contactsList = FXCollections.observableArrayList();	
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -108,11 +109,57 @@ public class ChatController implements Initializable{
 	}
 
 	private void SetFriendsList() {
-			// fill contactsList from data base // 
-			contactsListTab.setItems(contactsList);
-			
+		ArrayList<User> friends=new ArrayList<User>();// fill contactsList from data base // 
+		
+	
+		for(User friend : friends) {
+			 SetFriendListItem(friend);
 		}
+		
+		
+		contactsListTab.setItems(contactsList);
+			
+	}
 	    
+	private void SetFriendListItem(User friend) {
+		
+		System.out.println("inside SetFriendListItem(User friend) method ");
+		boolean done = false;
+		CheckBox status = null;
+		System.out.println("contactslist size "+contactsList.size());
+		for (int i = 0; i < contactsList.size(); i++)
+	    {
+			System.out.println("contactslist.get("+i+").gettext() = "+contactsList.get(i).getText());
+			System.out.println("friend.getusername() =  "+friend.getUserName());
+			System.out.println(contactsList.get(i).getText().equals(friend.getUserName()));
+			System.out.println(contactsList.get(i).getText()==friend.getUserName());
+	        if (contactsList.get(i).getText().equals(friend.getUserName()))
+	        {
+	        	
+	        	status=contactsList.get(i);
+//	        	contactsList.get(i).setSelected(true);
+	        	done=true;
+//	        	break;
+	        }
+	    }
+		if(!done) {
+         status=new CheckBox(friend.getUserName());
+         System.out.println("found no match = "+contactsList.size());
+		}
+         //int index=contactsList.indexOf(status);
+         //System.out.println("index of friend = "+index);
+         //if(index!=-1)status=contactsList.get(index);
+         if(friend.getStatus()==Status.Online)status.setSelected(true);
+         else status.setSelected(false);
+         status.setDisable(true);
+         status.setStyle("-fx-opacity: 1");
+         
+         if(!done)
+         contactsList.add(status);
+		
+		
+	}
+
 	@FXML
 	private void ApproveFriendRequests(MouseEvent event) {
 		 String friendName=requestsListview.getSelectionModel().getSelectedItem().toString();
@@ -193,7 +240,11 @@ public class ChatController implements Initializable{
 		 msg.setUser(user);
 		 ClientHome.sendMsgs(msg);
 		 
-		 contactsList.add(userName);
+		 User friend=new User();
+		 friend.setUserName(userName);
+		 SetFriendListItem(friend);
+		 
+		 //contactsList.add(userName);
 		 
 		 });
 		 
@@ -217,7 +268,7 @@ public class ChatController implements Initializable{
 	
 	@FXML
 	public void chatwithcontact(MouseEvent event) {
-		String name=contactsListTab.getSelectionModel().getSelectedItem().toString();
+		String name=contactsListTab.getSelectionModel().getSelectedItem().getText();
 		if(chatTabs.contains(name))
 		 System.out.println("clicked on " +name );
 		else 
@@ -283,9 +334,9 @@ public class ChatController implements Initializable{
 				  () -> {
 					  System.out.println(recieved.getUser().getUserName()+" is "+recieved.getUser().getStatus());	
 					 //green or grey something in contacts list view to show status 
+					  SetFriendListItem(recieved.getUser());
+					  
 				  });
-				 
-		
 	}
 		 
 		    
