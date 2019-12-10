@@ -60,6 +60,29 @@ public class ClientHome {
 			e.printStackTrace();
 		}
 	}
+	
+	public static void logOut() {
+		Message msg=new Message();
+		msg.setType(MessageType.LogOut);
+		sendMsgs(msg);
+		
+		try {
+			input.close();
+			
+		} catch (IOException e) {			
+			e.printStackTrace();
+		}finally {  
+			try {
+				System.out.println("closing connection ....");
+				socket.close();
+			}catch (IOException e) {
+				System.out.println("Unable to disconect !\nneed exit !");
+				//System.exit(1);
+				
+			}
+		}
+		
+	}
 
 
 private static boolean writeObj(Message msg) {
@@ -75,6 +98,7 @@ private static boolean writeObj(Message msg) {
 	}
 	return false;
 }
+
 
 private static void populateVariables() {
 	try {

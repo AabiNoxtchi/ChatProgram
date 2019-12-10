@@ -80,13 +80,19 @@ public class RegisterController {
 		private void continueToLoginScene(ActionEvent event) {
 			
 			try {
-			((Node) (event.getSource())).getScene().getWindow().hide();
+			/*((Node) (event.getSource())).getScene().getWindow().hide();
             Parent parent = FXMLLoader.load(getClass().getResource("LogInScene.fxml"));			
             Stage stage = new Stage();
             Scene scene = new Scene(parent);
             stage.setScene(scene);
             stage.setResizable(false);
-            stage.show();
+            stage.show();*/
+				
+				Stage stage = ((Stage) ((Node) (event.getSource())).getScene().getWindow());
+		 		   Parent root = FXMLLoader.load(getClass().getResource("LogInScene.fxml"));	
+		 		   stage.setScene(new Scene(root));
+		 		   stage.setResizable(false);
+		 	       stage.show();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

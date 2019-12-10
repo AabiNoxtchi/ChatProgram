@@ -77,7 +77,7 @@ public class Server {
 	            	 
 	            	 Message msg=null;
 	            	 
-	                while (socket.isConnected()) {
+	                while (!socket.isClosed()) {
 	                	
 	                	msg = (Message)input.readObject();
 							
@@ -117,6 +117,15 @@ public class Server {
 			                        	   forwardChatMsgs(msg);			                        	  
 			                        	   break;
 			                        	   
+			                           case LogOut:			                        	  
+			                        	   System.out.println("recieved log out msg ");
+			                        	   if(input!=null)
+			       							input.close();
+			       							if(socket!=null)
+			       								
+			       							socket.close();
+			                        	   break;
+			                        	   
 										default:
 											break;
 			                        }
@@ -132,7 +141,9 @@ public class Server {
 						   	           
 						try {
 							System.out.println("closing connections ");
+							if(input!=null)
 							input.close();
+							if(socket!=null)
 							socket.close();
 							System.out.println("closed connections ");
 						}catch(IOException e) {
@@ -148,6 +159,7 @@ public class Server {
 			     notifyFriendsListUserStatusChanged();	
 				 removeFromOnlineUserMapping(currentUser.getUserName());
 				 System.out.println("notified Friends List User Status Changed ");
+				// System.exit(1);
 		}
 		
 		private void getOnlineFriendsStatus() {

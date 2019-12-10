@@ -61,16 +61,25 @@ public class LoginController {
         	   
         	   txtLogInError.setText("");
         	   try {
-       			((Node) (event.getSource())).getScene().getWindow().hide();
+       			/*((Node) (event.getSource())).getScene().getWindow().hide();
+       			
                    Parent parent = FXMLLoader.load(getClass().getResource("ChatScene.fxml"));			
                    Stage stage = new Stage();                   
                    Scene scene = new Scene(parent);
                    stage.setScene(scene);
                    stage.setResizable(false);
-                   
-                   stage.show();
+                   stage.show();*/
+        		   
+        		   
+        		  
+        		   Stage stage = ((Stage) ((Node) (event.getSource())).getScene().getWindow());
+        		   Parent root = FXMLLoader.load(getClass().getResource("ChatScene.fxml"));	
+        		   stage.setScene(new Scene(root));
+        		   stage.setResizable(false);
+        	       stage.show();
+        		   
        			} catch (IOException e) {
-       				// TODO Auto-generated catch block
+       				
        				e.printStackTrace();
        			}
         	   
@@ -88,13 +97,20 @@ public class LoginController {
 	@FXML
     private void linkCreatAccountAction(ActionEvent event) {
         try {
-        	((Node) (event.getSource())).getScene().getWindow().hide();
+        	/*((Node) (event.getSource())).getScene().getWindow().hide();
             Parent parent = FXMLLoader.load(getClass().getResource("RegisterScene.fxml"));
             Stage stage = new Stage();
             Scene scene = new Scene(parent);
             stage.setScene(scene);
             stage.setResizable(false);
-            stage.show();
+            stage.show();*/
+        	//((Node) (event.getSource())).getScene().getWindow()
+        	Stage stage = ((Stage) ((Node) (event.getSource())).getScene().getWindow());
+ 		   Parent root = FXMLLoader.load(getClass().getResource("RegisterScene.fxml"));	
+ 		   stage.setScene(new Scene(root));
+ 		   stage.setResizable(false);
+ 	       stage.show();
+        	
         } catch (IOException ex) {
             ex.printStackTrace();
         }

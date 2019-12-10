@@ -19,6 +19,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -35,6 +36,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 
 
@@ -58,6 +60,7 @@ public class ChatController implements Initializable{
 	
 	private static String currentuser;
 	
+	static Reciever reciever;
 	static ObjectInputStream input;
 	static ArrayList<String> chatTabs=new ArrayList<String>();
 	static ArrayList<ChatBoxController> chatboxControllers=new ArrayList<ChatBoxController>();
@@ -72,7 +75,7 @@ public class ChatController implements Initializable{
 		input=ClientHome.getInput();
 		SetFriendsList();
 		SetRequestsList();
-		Reciever reciever = new Reciever();
+		reciever = new Reciever();
 		reciever.start();
 		
 		splitPane.setDividerPositions(0.3246);
@@ -111,7 +114,6 @@ public class ChatController implements Initializable{
 		boolean done = false;
 		HBox hbox=null;
 		Text name=null;
-		//CheckBox status = null;
 		Circle status=null;
 		System.out.println("contactslist size "+contactsList.size());
 		
@@ -122,7 +124,7 @@ public class ChatController implements Initializable{
 			ObservableList<javafx.scene.Node> listelements=hbox.getChildren();
 			name = (Text)listelements.get(0);
 		
-	        if (name.getText().equals(friend.getUserName())) //contactsList.get(i).get(0).getText().equals(friend.getUserName()))
+	        if (name.getText().equals(friend.getUserName())) 
 	        {
 	        	 status = (Circle)listelements.get(1);
 	        	done=true;
@@ -139,7 +141,7 @@ public class ChatController implements Initializable{
 	         System.out.println("found no match = "+contactsList.size());
 		}
 		
-         if(friend.getStatus()==Status.Online) {status.setFill(Color.GREENYELLOW);}//status.setSelected(true);
+         if(friend.getStatus()==Status.Online) {status.setFill(Color.GREENYELLOW);}
          else status.setFill(Color.LIGHTGRAY);         
          if(!done)
          contactsList.add(hbox);
@@ -228,9 +230,6 @@ public class ChatController implements Initializable{
 		 User friend=new User();
 		 friend.setUserName(userName);
 		 SetFriendListItem(friend);
-		 
-		 //contactsList.add(userName);
-		 
 		 });
 		 
 		 return result.isPresent();
@@ -248,8 +247,12 @@ public class ChatController implements Initializable{
 	@FXML
 	public void iconCreateGroupAction (MouseEvent event) {	}
 	
+	
 	@FXML
-	public void iconLogoutAction (MouseEvent event) {	}
+	public void iconLogoutAction (MouseEvent event) throws InterruptedException {
+	       reciever.interrupt();   
+		   Platform.exit();
+	}
 	
 	@FXML
 	public void chatwithcontact(MouseEvent event) {
@@ -322,7 +325,7 @@ public class ChatController implements Initializable{
 		Platform.runLater(
 				  () -> {
 					  System.out.println(recieved.getUser().getUserName()+" is "+recieved.getUser().getStatus());	
-					 //green or grey something in contacts list view to show status 
+					 //green or grey something in contacts list view to show status :done
 					  SetFriendListItem(recieved.getUser());
 					  
 				  });
@@ -335,11 +338,12 @@ public class ChatController implements Initializable{
 		     public void run()
 		     {
 		    	 System.out.println("Starting thread reciever from server..");	
-		    	 
+		    	 Message recieved;
 		        	try {
 		        		while(true)
 				        {
-				        	Message recieved = (Message)input.readObject();
+		        			recieved = (Message)input.readObject();
+				        	
 				        	System.out.println("recieved msg"+recieved.getType());							
 						
 							if(recieved.getType()==MessageType.FriendRequest)
@@ -363,13 +367,11 @@ public class ChatController implements Initializable{
 							}
 					  }
 		        	}catch (ClassNotFoundException|IOException e) {
-						e.printStackTrace();
+						//e.printStackTrace();
+		        		System.out.println("connection got exception ..");	
 					}
 		   }
-
-			
    }
-
 }
 
 		
