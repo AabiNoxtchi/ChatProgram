@@ -21,8 +21,7 @@ public class Server {
 	private static ArrayList<User> allUsers = new ArrayList<User>();
 	
 	//HashMap<user.getuserName.hashcode , user.registerhashcode>
-	private static HashMap<Integer,Integer> usersRegisterHashCodes = new HashMap<Integer,Integer>();
-	private static HashSet<Integer> usersLogInHashCodes = new HashSet<Integer>();
+	private static HashMap<Integer,Integer> usersRegisterLoginHashCodes = new HashMap<Integer,Integer>();
 	private static HashMap<String,LinkedList<Message>> offlineMsgs = new HashMap<String,LinkedList<Message>>();
 	
 	//every user has to have his friends list fetched from data base 	
@@ -165,7 +164,6 @@ public class Server {
 					notifyOnline(msg,currentUser.getUserName());
 				}
 			}
-			
 		}
 
 		private User setEmptyUser() {
@@ -279,7 +277,7 @@ public class Server {
 		}
 
 		private boolean LogIn(User user) {		
-			if(usersLogInHashCodes.contains(user.loginhashCode()) && !onlineUserMapping.containsKey(user.getUserName()))
+			if(usersRegisterLoginHashCodes.containsValue(user.registerLoginhashCode()) && !onlineUserMapping.containsKey(user.getUserName()))
 			{
 				user.setStatus(Status.Online);
 				putOnlineUserMapping(user.getUserName(), output);				
@@ -290,12 +288,15 @@ public class Server {
 		}
 
 		private boolean Register(User user) {		
-			if(usersRegisterHashCodes.containsKey(user.hashCode())||usersRegisterHashCodes.containsValue(user.registerhashCode())) {			
+			if(user.registerLoginhashCode()==0 || 
+					usersRegisterLoginHashCodes.containsKey(user.hashCode())||
+					usersRegisterLoginHashCodes.containsValue(user.registerLoginhashCode())) 
+			{			
 				return false;			
 			}else {
 				addAllUsers(user);
-				putUsersRegisterHashCodes(user.hashCode(),user.registerhashCode());
-				addUsersLogInHashCodes(user.loginhashCode());				
+				putUsersRegisterLoginHashCodes(user.hashCode(),user.registerLoginhashCode());
+							
 				
 				return true;
 			}
@@ -342,9 +343,9 @@ public class Server {
 	private static void PopulateAllUsers() {	
 		//to do take the users from data base when server starts and put them in ArrayList<User> allUsers	
 		for (User user:allUsers) {
-			Integer userRegisterhashcode=user.registerhashCode();
-			usersRegisterHashCodes.put(user.hashCode(),userRegisterhashcode);
-			usersLogInHashCodes.add(user.loginhashCode());
+			Integer userRegisterLoginhashcode=user.registerLoginhashCode();
+			usersRegisterLoginHashCodes.put(user.hashCode(),userRegisterLoginhashcode);
+			//usersLogInHashCodes.add(user.loginhashCode());
 		}
 	}
 	
@@ -383,15 +384,10 @@ public class Server {
 		
 	}
 	
-	private synchronized static void addUsersLogInHashCodes(int loginhashCode) {
-		usersLogInHashCodes.add(loginhashCode);
-		System.out.println("added new user log in data : " + loginhashCode + " : " + usersLogInHashCodes.contains(loginhashCode));
-		
-	}
 	
-	private synchronized static void putUsersRegisterHashCodes(int usernamehashCode, int registerhashCode) {
-		usersRegisterHashCodes.put(usernamehashCode,registerhashCode);
-		System.out.println("registered new user : " + usernamehashCode + " , " + usersRegisterHashCodes.get(usernamehashCode));
+	private synchronized static void putUsersRegisterLoginHashCodes(int usernamehashCode, int registerLoginhashCode) {
+		usersRegisterLoginHashCodes.put(usernamehashCode,registerLoginhashCode);
+		System.out.println("registered new user : " + usernamehashCode + " , " + usersRegisterLoginHashCodes.get(usernamehashCode));
 	}
 	
 	private synchronized static void addAllUsers(User user){

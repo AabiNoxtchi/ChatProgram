@@ -1,26 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="351.0" prefWidth="425.0" style="-fx-background-color: #FFF0CC;" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.LoginController">
+<AnchorPane prefHeight="351.0" prefWidth="425.0" style="-fx-background-color: #FFF0CC;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.LoginController">
    <children>
       <Text fill="#000000b6" layoutX="155.0" layoutY="69.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Log in">
          <font>
             <Font size="37.0" />
          </font>
       </Text>
-       <Text fx:id="txtLogInError" fill="#dd0101" layoutX="140.0" layoutY="100.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" />
+       <Text fx:id="txtLogInError" fill="#dd0101" layoutX="118.0" layoutY="94.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" wrappingWidth="222.0" />
       <Text fill="#000000b6" layoutX="134.0" layoutY="114.0" strokeType="OUTSIDE" strokeWidth="0.0" text="username" />
       <Text fill="#000000b6" layoutX="134.0" layoutY="191.0" strokeType="OUTSIDE" strokeWidth="0.0" text="password" />
-      <TextField layoutX="135.0" layoutY="129.0" promptText="username" fx:id="txtUserName" />
-      <PasswordField layoutX="135.0" layoutY="204.0" promptText="******" fx:id="txtPassword" />
-      <Button fx:id="btnLogin" onAction="#btnLoginAction" layoutX="184.0" layoutY="257.0" mnemonicParsing="false" style="-fx-background-color: #FFC133;" text="Log in">
+      <TextField fx:id="txtUserName" layoutX="135.0" layoutY="129.0" promptText="username" />
+      <PasswordField fx:id="txtPassword" layoutX="135.0" layoutY="204.0" promptText="******" />
+      <Button fx:id="btnLogin" layoutX="184.0" layoutY="257.0" mnemonicParsing="false" onAction="#btnLoginAction" style="-fx-background-color: #FFC133;" text="Log in">
          <font>
             <Font size="14.0" />
          </font>
       </Button>
-      <Hyperlink layoutX="101.0" layoutY="300.0" text="Don't have an account? Register now" fx:id="linkCreateAccount" onAction="#linkCreatAccountAction" />
+      <Hyperlink fx:id="linkCreateAccount" layoutX="101.0" layoutY="300.0" onAction="#linkCreatAccountAction" text="Don't have an account? Register now" />
    </children>
 </AnchorPane>

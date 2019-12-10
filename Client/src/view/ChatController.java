@@ -1,7 +1,7 @@
 package view;
 
 
-import java.awt.Label;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.URL;
@@ -22,6 +22,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;

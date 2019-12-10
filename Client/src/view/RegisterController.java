@@ -13,23 +13,16 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class RegisterController {
-	  @FXML
-	  private TextField txtFirstName;
 	  
-	  @FXML
-	  private TextField txtLastName;
-	  
-	  @FXML
+	   @FXML
 	    private TextField txtUserName;
-	  
-	  @FXML
-	  private TextField txtEmail;
 
 	    @FXML
 	    private PasswordField txtPassword;
@@ -37,24 +30,26 @@ public class RegisterController {
 	    @FXML
 	    private Button btnRegister;
 	    
-	    @FXML Text txtRegisterError;
+	    @FXML 
+	    Text txtRegisterError;
+	    
+	    @FXML
+	    private Hyperlink linkLogIn;
 	    
 	    @FXML
 	    private void btnRegisterAction(ActionEvent event) {
-	        try {
-
-	            String errorMsg = "";
-	            
-	            String firstname = txtFirstName.getText();
-	            String lastname = txtLastName.getText();
-	            String email = txtEmail.getText();
+	        try {	           
+	        	
 	            String username = txtUserName.getText();
 	            String password = txtPassword.getText();
-
-	            User user = new User();
-	            user.setFirstName(firstname);
-	            user.setLastName(lastname);
-	            user.setEmail(email);
+	            
+	            if(username.length()==0 || password.length()==0) {
+	            	
+	            	txtRegisterError.setText("Error in Register Fields ,All Fields are Requiered  ! ");
+	            	txtRegisterError.setWrappingWidth(400);
+	            }else{	            	
+	            
+	            User user = new User();	           
 	            user.setUserName(username);
 	            user.setPassword(password);
 
@@ -62,7 +57,6 @@ public class RegisterController {
 	            message.setType(MessageType.Register);
 	            message.setUser(user);
 
-	           //ClientHome clientHome=new ClientHome();
 	           boolean done= ClientHome.accessServer(message);
 	           if(done) {
 	        	   txtRegisterError.setText("");
@@ -71,11 +65,16 @@ public class RegisterController {
 	        	   txtRegisterError.setText("Error in Register Fields ,User name already exists ! ");
 	        	   txtRegisterError.setWrappingWidth(600);
 	           }
-
+	        }
 	        } catch (Exception ex) {
 	            ex.printStackTrace();
 	            System.out.println("Register Error");
 	        }
+	    }
+	    
+	    @FXML
+	    private void linkLogInAction(ActionEvent event) {
+	    	continueToLoginScene(event);
 	    }
 
 		private void continueToLoginScene(ActionEvent event) {
@@ -89,7 +88,6 @@ public class RegisterController {
             stage.setResizable(false);
             stage.show();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

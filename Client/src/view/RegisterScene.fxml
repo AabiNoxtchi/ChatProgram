@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="343.0" prefWidth="419.0" style="-fx-background-color: #FFE29E;" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.RegisterController">
+<AnchorPane prefHeight="343.0" prefWidth="419.0" style="-fx-background-color: #FFE29E;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.RegisterController">
    <children>
-      <Text fill="#000000b5" layoutX="39.0" layoutY="59.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Register">
+      <Text fill="#000000b5" layoutX="108.0" layoutY="68.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Register">
          <font>
             <Font size="37.0" />
          </font>
       </Text>
-      <Text fx:id="txtRegisterError" fill="#dd0101" layoutX="40.0" layoutY="85.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" wrappingWidth="10.0" />
-      <TextField layoutX="48.0" layoutY="117.0" promptText="first name" fx:id="txtFirstName"/>
-      <TextField layoutX="223.0" layoutY="117.0" promptText="last name" fx:id="txtLastName"/>
-      <TextField layoutX="48.0" layoutY="188.0" promptText="username" fx:id="txtUserName"/>
-      <Text fill="#000000b5" layoutX="48.0" layoutY="107.0" strokeType="OUTSIDE" strokeWidth="0.0" text="first name" />
-      <Text fill="#000000b5" layoutX="222.0" layoutY="107.0" strokeType="OUTSIDE" strokeWidth="0.0" text="last name" />
-      <Text fill="#000000b5" layoutX="48.0" layoutY="177.0" strokeType="OUTSIDE" strokeWidth="0.0" text="username" />
-      <TextField layoutX="223.0" layoutY="188.0" promptText="email" fx:id="txtEmail"/>
-      <Text fill="#000000b5" layoutX="223.0" layoutY="176.0" strokeType="OUTSIDE" strokeWidth="0.0" text="email" />
-      <PasswordField layoutX="48.0" layoutY="259.0" promptText="********" fx:id="txtPassword"/>
-      <Text fill="#000000b5" layoutX="49.0" layoutY="249.0" strokeType="OUTSIDE" strokeWidth="0.0" text="password" />
-      <Button layoutX="223.0" layoutY="259.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="155.0" style="-fx-background-color: #FFC133;" text="Register" fx:id="btnRegister" onAction="#btnRegisterAction"/>
+      <Text fx:id="txtRegisterError" fill="#dd0101" layoutX="76.0" layoutY="100.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" wrappingWidth="62.856452122330666" />
+      
+      <TextField fx:id="txtUserName" layoutX="106.0" layoutY="133.0" promptText="username" />     
+      <Text fill="#000000b5" layoutX="106.0" layoutY="121.0" strokeType="OUTSIDE" strokeWidth="0.0" text="username" />
+      
+      <PasswordField fx:id="txtPassword" layoutX="106.0" layoutY="204.0" promptText="********" />
+      <Text fill="#000000b5" layoutX="107.0" layoutY="194.0" strokeType="OUTSIDE" strokeWidth="0.0" text="password" />
+      <Button fx:id="btnRegister" layoutX="122.0" layoutY="254.0" mnemonicParsing="false" onAction="#btnRegisterAction" prefHeight="25.0" prefWidth="155.0" style="-fx-background-color: #FFC133;" text="Register" />
+      <Hyperlink fx:id="linkLogIn" layoutX="101.0" layoutY="300.0" onAction="#linkLogInAction" text="Already have an account? login " />
    </children>
 </AnchorPane>

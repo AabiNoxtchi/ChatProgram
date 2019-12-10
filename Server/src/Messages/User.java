@@ -1,52 +1,25 @@
 package Messages;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.LinkedList;
 
 public class User implements Serializable{
 	
-private Status status;
+/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+    private Status status;
+	
+	private String UserName;
+	
+	private String Password;
 	
 	public Status getStatus() {
 		return status;
 	}
 	public void setStatus(Status status) {
 		this.status = status;
-	}
-	
-	private String UserName;
-	
-	private String Password;
-	
-	private String firstName;
-	
-    private String lastName;
-	
-	private String email;
-	
-	
-	
-	//private HashSet<User> friendsList=new HashSet<User>();
-	
-	
-	public String getFirstName() {
-		return firstName;
-	}
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-	public String getLastName() {
-		return lastName;
-	}
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-	public String getEmail() {
-		return email;
-	}
-	public void setEmail(String email) {
-		this.email = email;
 	}
 	public String getUserName() {
 		return UserName;
@@ -61,13 +34,6 @@ private Status status;
 		Password = password;
 	}
 	
-	/*public HashSet<User> getFriendsList() {
-		return friendsList;
-	}
-	public void setFriendsList(HashSet<User> friendsList) {
-		this.friendsList = friendsList;
-	}*/
-	
 	@Override
 	public boolean equals(Object o) {
 		if(this==o)
@@ -75,9 +41,7 @@ private Status status;
 		if(o==null)
 			return false;
 		User user=(User)o;
-		return getFirstName().equals(user.getFirstName())&&
-				getLastName().equals(user.getLastName())&&
-				getEmail().equals(user.getLastName())&&
+		return
 				getUserName().equals(user.getUserName())&&
 				getPassword().equals(user.getPassword());
 	}
@@ -85,28 +49,15 @@ private Status status;
 	@Override
 	public int hashCode() {
 		
-		int result=17;
-		result*=37*getUserName().hashCode();//+getFirstName().hashCode()+getLastName().hashCode()+getEmail().hashCode()+getPassword().hashCode();
+		int result=1;
+		result*=getUserName().hashCode();
 		return result;
 	}
 	
-public int registerhashCode() {
-	
-	    System.out.println("firstname , firstname.hashcode : "+ getFirstName()+" , "+getFirstName().hashCode());
+public int registerLoginhashCode() {
 		
-		int result=17;
-		result*=37*(getUserName().hashCode()+getFirstName().hashCode()+getLastName().hashCode()+getEmail().hashCode()+getPassword().hashCode());
+		int result=1;
+		result*=(getUserName().hashCode()+getPassword().hashCode());
 		return result;
 	}
-
-public int loginhashCode() {
-	
-	int result=17;
-	result*=37*(getUserName().hashCode()+getPassword().hashCode());
-	return result;
-}
-	
-	
-	
-
 }

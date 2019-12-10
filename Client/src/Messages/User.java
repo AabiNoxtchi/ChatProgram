@@ -1,52 +1,25 @@
 package Messages;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.LinkedList;
 
 public class User implements Serializable{
 	
-	 private Status status;
-		
-		public Status getStatus() {
-			return status;
-		}
-		public void setStatus(Status status) {
-			this.status = status;
-		}
+/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+    private Status status;
 	
-    private String firstName;
-    
-    private String lastName;
+	private String UserName;
 	
-	private String email;
+	private String Password;
 	
-    private String UserName;
-	
-	private String Password;	
-    
-    
-    
-   // private HashSet<User> friendsList=new HashSet<User>();
-    
-	
-	public String getFirstName() {
-		return firstName;
+	public Status getStatus() {
+		return status;
 	}
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-	public String getLastName() {
-		return lastName;
-	}
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-	public String getEmail() {
-		return email;
-	}
-	public void setEmail(String email) {
-		this.email = email;
+	public void setStatus(Status status) {
+		this.status = status;
 	}
 	public String getUserName() {
 		return UserName;
@@ -61,14 +34,6 @@ public class User implements Serializable{
 		Password = password;
 	}
 	
-	/*public HashSet<User> getFriendsList() {
-		return friendsList;
-	}
-	public void setFriendsList(HashSet<User> friendsList) {
-		this.friendsList = friendsList;
-	}*/
-	
-	
 	@Override
 	public boolean equals(Object o) {
 		if(this==o)
@@ -76,9 +41,7 @@ public class User implements Serializable{
 		if(o==null)
 			return false;
 		User user=(User)o;
-		return getFirstName().equals(user.getFirstName())&&
-				getLastName().equals(user.getLastName())&&
-				getEmail().equals(user.getLastName())&&
+		return
 				getUserName().equals(user.getUserName())&&
 				getPassword().equals(user.getPassword());
 	}
@@ -86,26 +49,15 @@ public class User implements Serializable{
 	@Override
 	public int hashCode() {
 		
-		int result=17;
-		result*=37*getUserName().hashCode();//getFirstName().hashCode()+getLastName().hashCode()+getEmail().hashCode()+getPassword().hashCode();
+		int result=1;
+		result*=getUserName().hashCode();
 		return result;
 	}
 	
-public int registerhashCode() {
+public int registerLoginhashCode() {
 		
-		int result=17;
-		result*=37*(getUserName().hashCode()+getFirstName().hashCode()+getLastName().hashCode()+getEmail().hashCode()+getPassword().hashCode());
+		int result=1;
+		result*=(getUserName().hashCode()+getPassword().hashCode());
 		return result;
 	}
-
-public int loginhashCode() {
-	
-	int result=17;
-	result*=37*(getUserName().hashCode()+getPassword().hashCode());
-	return result;
-}
-	
-	
-
-
 }
