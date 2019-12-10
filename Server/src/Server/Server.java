@@ -219,6 +219,19 @@ public class Server {
 
 		private void notifyOffline(Message msg, String userName) {
 			if(offlineMsgs.containsKey(userName)) {
+				if(msg.getType()==MessageType.StatusChanged)
+				{
+					int index= offlineMsgs.get(userName).indexOf(msg);
+					System.out.println("index = "+index);
+					if(index!=-1) {
+						
+						////
+						replaceOfflineMsgsLinkedListItem(msg,userName,index);
+						
+						
+					}
+					
+				}else
 				addToOfflineMsgs(userName,msg);	
 			}else {
 				LinkedList<Message> msgs=new LinkedList<Message>();
@@ -315,7 +328,7 @@ public class Server {
 			for(String friend:friendsLists.get(currentUser.getUserName()))
 			{
 				
-				notifyOnline(msg,friend);
+				notify(msg,friend);
 				/*if(onlineUserMapping.containsKey(friend))
 				{
 					try {
@@ -344,6 +357,13 @@ public class Server {
 		}
 	}
 	
+	private synchronized static void replaceOfflineMsgsLinkedListItem(Message msg, String userName, int index) {
+		offlineMsgs.get(userName).remove(index);
+		offlineMsgs.get(userName).add(msg);
+		System.out.println("replacing offline msgs linked list for user "+userName+" ,msg user name "+msg.getUser().getUserName());
+		
+	}
+
 	private synchronized static void removeFromOnlineUserMapping(String userName) {
 		 onlineUserMapping.remove(userName);
 				

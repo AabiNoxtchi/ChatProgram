@@ -15,17 +15,20 @@
 <fullyQualifiedTypeName name="Views.LogIn"/>
 <fullyQualifiedTypeName name="java.util.Scanner"/>
 <fullyQualifiedTypeName name="Messages.Message"/>
-<fullyQualifiedTypeName name="java.lang.System"/>
 <fullyQualifiedTypeName name="javafx.fxml.FXMLLoader"/>
 <fullyQualifiedTypeName name="view.ChatBoxController"/>
 <fullyQualifiedTypeName name="Messages.User"/>
 <fullyQualifiedTypeName name="Messages.MessageType"/>
 <fullyQualifiedTypeName name="ClientSocket.ClientHome"/>
-<fullyQualifiedTypeName name="javax.xml.soap.Node"/>
 <fullyQualifiedTypeName name="java.util.HashMap"/>
 <fullyQualifiedTypeName name="java.util.HashSet"/>
 <fullyQualifiedTypeName name="java.awt.List"/>
 <fullyQualifiedTypeName name="Server.Server.ClientListner"/>
 <fullyQualifiedTypeName name="Messages.Status"/>
 <fullyQualifiedTypeName name="javafx.scene.text.Text"/>
+<fullyQualifiedTypeName name="javafx.scene.control.TextInputControl"/>
+<fullyQualifiedTypeName name="javax.xml.soap.Node"/>
+<fullyQualifiedTypeName name="javafx.scene.control.CheckBox"/>
+<fullyQualifiedTypeName name="java.lang.System"/>
+<fullyQualifiedTypeName name="sun.swing.BakedArrayList"/>
 </qualifiedTypeNameHistroy>

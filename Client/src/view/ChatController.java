@@ -14,6 +14,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Scanner;
@@ -49,9 +50,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.util.Callback;
 import javafx.util.Pair;
+
 
 
 public class ChatController implements Initializable{
@@ -69,7 +73,7 @@ public class ChatController implements Initializable{
     @FXML
 	private ListView<String> requestsListview=new ListView<String>();	
 	@FXML
-	private ListView<CheckBox> contactsListTab=new ListView<CheckBox>();
+	private ListView<HBox> contactsListTab=new ListView<HBox>();
 	
 	private static String currentuser;
 	
@@ -77,7 +81,7 @@ public class ChatController implements Initializable{
 	static ArrayList<String> chatTabs=new ArrayList<String>();
 	static ArrayList<ChatBoxController> chatboxControllers=new ArrayList<ChatBoxController>();
 	ObservableList<String> friendrequestsList =FXCollections.observableArrayList();
-	ObservableList<CheckBox> contactsList = FXCollections.observableArrayList();	
+	ObservableList<HBox> contactsList = FXCollections.observableArrayList();	
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -125,37 +129,54 @@ public class ChatController implements Initializable{
 		
 		System.out.println("inside SetFriendListItem(User friend) method ");
 		boolean done = false;
-		CheckBox status = null;
+		HBox hbox=null;
+		Text name=null;
+		//CheckBox status = null;
+		Circle status=null;
 		System.out.println("contactslist size "+contactsList.size());
+		
+		
 		for (int i = 0; i < contactsList.size(); i++)
 	    {
-			System.out.println("contactslist.get("+i+").gettext() = "+contactsList.get(i).getText());
-			System.out.println("friend.getusername() =  "+friend.getUserName());
-			System.out.println(contactsList.get(i).getText().equals(friend.getUserName()));
-			System.out.println(contactsList.get(i).getText()==friend.getUserName());
-	        if (contactsList.get(i).getText().equals(friend.getUserName()))
+			
+//			System.out.println("contactslist.get("+i+").gettext() = "+contactsList.get(i).getText());
+//			System.out.println("friend.getusername() =  "+friend.getUserName());
+//			System.out.println(contactsList.get(i).getText().equals(friend.getUserName()));
+//			System.out.println(contactsList.get(i).getText()==friend.getUserName());
+			hbox=contactsList.get(i);
+			ObservableList<javafx.scene.Node> listelements=hbox.getChildren();
+			name = (Text)listelements.get(0);
+		
+	        if (name.getText().equals(friend.getUserName())) //contactsList.get(i).get(0).getText().equals(friend.getUserName()))
 	        {
-	        	
-	        	status=contactsList.get(i);
+	        	 status = (Circle)listelements.get(1);
+	        	 //status.setSelected(true);
+	        	 
+	        	//status=contactsList.get(i);
 //	        	contactsList.get(i).setSelected(true);
 	        	done=true;
 //	        	break;
 	        }
 	    }
 		if(!done) {
-         status=new CheckBox(friend.getUserName());
-         System.out.println("found no match = "+contactsList.size());
+			 hbox=new HBox();
+			 name=new Text(friend.getUserName());
+			 name.setWrappingWidth(140);
+	         status=new Circle();
+	         status.setRadius(8.0f); 
+	         hbox.getChildren().addAll(name,status);
+	         System.out.println("found no match = "+contactsList.size());
 		}
          //int index=contactsList.indexOf(status);
          //System.out.println("index of friend = "+index);
          //if(index!=-1)status=contactsList.get(index);
-         if(friend.getStatus()==Status.Online)status.setSelected(true);
-         else status.setSelected(false);
-         status.setDisable(true);
-         status.setStyle("-fx-opacity: 1");
+         if(friend.getStatus()==Status.Online) {status.setFill(Color.GREENYELLOW);}//status.setSelected(true);
+         else status.setFill(Color.LIGHTGRAY);
+         //status.setDisable(true);
+         //status.setStyle("-fx-opacity: 1");
          
          if(!done)
-         contactsList.add(status);
+         contactsList.add(hbox);
 		
 		
 	}
@@ -268,7 +289,11 @@ public class ChatController implements Initializable{
 	
 	@FXML
 	public void chatwithcontact(MouseEvent event) {
-		String name=contactsListTab.getSelectionModel().getSelectedItem().getText();
+		HBox hbox= contactsListTab.getSelectionModel().getSelectedItem();
+		
+		ObservableList<javafx.scene.Node> listelements=hbox.getChildren();
+		Text text = (Text)listelements.get(0);
+		String name=text.getText();
 		if(chatTabs.contains(name))
 		 System.out.println("clicked on " +name );
 		else 
