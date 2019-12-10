@@ -95,9 +95,10 @@ public class Server {
 		                                    boolean loggedIn= LogIn(msg.getUser());		                            									
 											output.writeObject(loggedIn);
 											if(loggedIn) {
-											setcurrentUser(msg.getUser(),Status.Online);											
-											notifyFriendsListUserStatusChanged();
-											//send all friends status msgs
+											setcurrentUser(msg.getUser(),Status.Online);
+											//get online friends status msgs
+											getOnlineFriendsStatus();
+											notifyFriendsListUserStatusChanged();											
 											getOfflineMsgs();
 											}
 												
@@ -150,6 +151,23 @@ public class Server {
 				 System.out.println("notified Friends List User Status Changed ");
 		}
 		
+		private void getOnlineFriendsStatus() {
+			HashSet<String> friends=friendsLists.get(currentUser.getUserName());
+			if(friends != null)
+			for(String friend : friends){
+				if(onlineUserMapping.containsKey(friend)) {
+					User user=new User();
+					user.setUserName(friend);
+					user.setStatus(Status.Online);
+					Message msg=new Message();
+					msg.setType(MessageType.StatusChanged);
+					msg.setUser(user);
+					notifyOnline(msg,currentUser.getUserName());
+				}
+			}
+			
+		}
+
 		private User setEmptyUser() {
 			 
 			return null;
@@ -186,11 +204,8 @@ public class Server {
 				friendList.add(friend.getUserName());
 				putInfriendsLists(user.getUserName(),friendList);				
 			}
-			        Message msg=CheckFriendStatus(friend);	
-			        
-					if(onlineUserMapping.containsKey(user.getUserName())) {						
-						notifyOnline(msg,user.getUserName());						
-					}
+			    Message msg=CheckFriendStatus(friend);	        
+				notifyOnline(msg,user.getUserName());						
 		}
 
 		private Message CheckFriendStatus(User user) {
@@ -219,20 +234,9 @@ public class Server {
 
 		private void notifyOffline(Message msg, String userName) {
 			if(offlineMsgs.containsKey(userName)) {
-				if(msg.getType()==MessageType.StatusChanged)
-				{
-					int index= offlineMsgs.get(userName).indexOf(msg);
-					System.out.println("index = "+index);
-					if(index!=-1) {
-						
-						////
-						replaceOfflineMsgsLinkedListItem(msg,userName,index);
-						
-						
-					}
-					
-				}else
+				
 				addToOfflineMsgs(userName,msg);	
+				
 			}else {
 				LinkedList<Message> msgs=new LinkedList<Message>();
 				msgs.add(msg);
@@ -290,7 +294,6 @@ public class Server {
 				return false;			
 			}else {
 				addAllUsers(user);
-				//Integer userRegisterHashcode=user.registerhashCode();
 				putUsersRegisterHashCodes(user.hashCode(),user.registerhashCode());
 				addUsersLogInHashCodes(user.loginhashCode());				
 				
@@ -328,22 +331,10 @@ public class Server {
 			for(String friend:friendsLists.get(currentUser.getUserName()))
 			{
 				
-				notify(msg,friend);
-				/*if(onlineUserMapping.containsKey(friend))
-				{
-					try {
-						System.out.println("Sending user's friends his status changed  = "+msg.getUser().getStatus());
-						onlineUserMapping.get(friend).writeObject(msg);
-					} catch (IOException e) {
-						
-						e.printStackTrace();
-					}
-				}*/
+				notifyOnline(msg,friend);
 			}
 		  }
-			
 		}
-		
 	}
 
 
@@ -357,13 +348,6 @@ public class Server {
 		}
 	}
 	
-	private synchronized static void replaceOfflineMsgsLinkedListItem(Message msg, String userName, int index) {
-		offlineMsgs.get(userName).remove(index);
-		offlineMsgs.get(userName).add(msg);
-		System.out.println("replacing offline msgs linked list for user "+userName+" ,msg user name "+msg.getUser().getUserName());
-		
-	}
-
 	private synchronized static void removeFromOnlineUserMapping(String userName) {
 		 onlineUserMapping.remove(userName);
 				

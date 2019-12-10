@@ -1,26 +1,13 @@
 package view;
 
 
-import javafx.scene.control.Label;
-import javafx.scene.control.Labeled;
-
+import java.awt.Label;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.SocketException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.Scanner;
-
-import javax.xml.soap.Node;
-
 import ClientSocket.ClientHome;
 import Messages.Message;
 import Messages.MessageType;
@@ -29,32 +16,25 @@ import Messages.User;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputControl;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
-import javafx.util.Callback;
-import javafx.util.Pair;
+
 
 
 
@@ -97,7 +77,6 @@ public class ChatController implements Initializable{
 		splitPane.setDividerPositions(0.3246);
         leftPane.maxWidthProperty().bind(splitPane.widthProperty().multiply(0.3246));
         tabPane.maxWidthProperty().bind(splitPane.widthProperty().multiply(0.6546));
-//      tabPane= new TabPane();
 
         try {
             homeBox.setContent(FXMLLoader.load(getClass().getResource("HomeBox.fxml")));
@@ -138,11 +117,6 @@ public class ChatController implements Initializable{
 		
 		for (int i = 0; i < contactsList.size(); i++)
 	    {
-			
-//			System.out.println("contactslist.get("+i+").gettext() = "+contactsList.get(i).getText());
-//			System.out.println("friend.getusername() =  "+friend.getUserName());
-//			System.out.println(contactsList.get(i).getText().equals(friend.getUserName()));
-//			System.out.println(contactsList.get(i).getText()==friend.getUserName());
 			hbox=contactsList.get(i);
 			ObservableList<javafx.scene.Node> listelements=hbox.getChildren();
 			name = (Text)listelements.get(0);
@@ -150,12 +124,8 @@ public class ChatController implements Initializable{
 	        if (name.getText().equals(friend.getUserName())) //contactsList.get(i).get(0).getText().equals(friend.getUserName()))
 	        {
 	        	 status = (Circle)listelements.get(1);
-	        	 //status.setSelected(true);
-	        	 
-	        	//status=contactsList.get(i);
-//	        	contactsList.get(i).setSelected(true);
 	        	done=true;
-//	        	break;
+	        	break;
 	        }
 	    }
 		if(!done) {
@@ -167,14 +137,9 @@ public class ChatController implements Initializable{
 	         hbox.getChildren().addAll(name,status);
 	         System.out.println("found no match = "+contactsList.size());
 		}
-         //int index=contactsList.indexOf(status);
-         //System.out.println("index of friend = "+index);
-         //if(index!=-1)status=contactsList.get(index);
+		
          if(friend.getStatus()==Status.Online) {status.setFill(Color.GREENYELLOW);}//status.setSelected(true);
-         else status.setFill(Color.LIGHTGRAY);
-         //status.setDisable(true);
-         //status.setStyle("-fx-opacity: 1");
-         
+         else status.setFill(Color.LIGHTGRAY);         
          if(!done)
          contactsList.add(hbox);
 		
@@ -192,8 +157,6 @@ public class ChatController implements Initializable{
 	}
 	
 	private boolean showDialog(String name,String TextFieldType,String title,String text,MessageType msgType) {
-		
-		
 		
 		 Dialog<String> dialog = new Dialog<>();
 		 dialog.setTitle(title);
@@ -321,7 +284,7 @@ public class ChatController implements Initializable{
 		 System.out.println("tab pane index = "+tabPane.getTabs().size());
 		 tabPane.getTabs().add(tabPane.getTabs().size(), newtab); 
 		 
-        tabPane.getSelectionModel().select( tabPane.getTabs().size()-1); 
+         tabPane.getSelectionModel().select( tabPane.getTabs().size()-1); 
         
 		 chatTabs.add(index-1, name);
 		 chatboxControllers.add(index-1,controller);
