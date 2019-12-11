@@ -13,10 +13,12 @@ public class Message implements Serializable{
     private MessageType type;
     
     private String msg;
+    
+    private String groupMembers;
 	
 	private User user; 
 	
-	public MessageType getType() {
+	public MessageType getType() { 
 		return type;
 	}
 
@@ -38,6 +40,14 @@ public class Message implements Serializable{
 
 	public void setMsg(String msg) {
 		this.msg = msg;
+	}
+
+	public String getGroupMembers() {
+		return groupMembers;
+	}
+
+	public void setGroupMembers(String groupMembers) {
+		this.groupMembers = groupMembers;
 	}
 
 	

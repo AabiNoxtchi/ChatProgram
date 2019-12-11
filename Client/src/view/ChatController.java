@@ -2,10 +2,13 @@ package view;
 
 
 
+import java.util.List;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.URL;
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import ClientSocket.ClientHome;
@@ -103,20 +106,16 @@ public class ChatController implements Initializable{
 			 SetFriendListItem(friend);
 		}
 		
-		
 		contactsListTab.setItems(contactsList);
 			
 	}
 	    
 	private void SetFriendListItem(User friend) {
 		
-		System.out.println("inside SetFriendListItem(User friend) method ");
 		boolean done = false;
 		HBox hbox=null;
 		Text name=null;
 		Circle status=null;
-		System.out.println("contactslist size "+contactsList.size());
-		
 		
 		for (int i = 0; i < contactsList.size(); i++)
 	    {
@@ -138,15 +137,13 @@ public class ChatController implements Initializable{
 	         status=new Circle();
 	         status.setRadius(8.0f); 
 	         hbox.getChildren().addAll(name,status);
-	         System.out.println("found no match = "+contactsList.size());
 		}
 		
          if(friend.getStatus()==Status.Online) {status.setFill(Color.GREENYELLOW);}
          else status.setFill(Color.LIGHTGRAY);         
          if(!done)
          contactsList.add(hbox);
-		
-		
+         
 	}
 
 	@FXML
@@ -208,7 +205,6 @@ public class ChatController implements Initializable{
 			     if (dialogButton == addButtonType) {
 			    	
 						 return new String (txtFieldUserName.getText());
-					
 			        
 			     }
 			     return null;
@@ -216,18 +212,20 @@ public class ChatController implements Initializable{
 		 }
 		
 		
-		
-		
 		 Optional<String> result = dialog.showAndWait();
-		 result.ifPresent(userName->{		
+			 
+		 result.ifPresent(userName->{
+			 if(msgType!=null) {
 		 User user=new User();
 		 user.setUserName(userName);
 		 Message msg=new Message();
 		 msg.setType(msgType);		 
 		 msg.setUser(user);
 		 ClientHome.sendMsgs(msg);
-		 
+			 }
 		 User friend=new User();
+		 userName=sortFriendName(userName);
+		 System.out.println(userName);
 		 friend.setUserName(userName);
 		 SetFriendListItem(friend);
 		 });
@@ -235,17 +233,31 @@ public class ChatController implements Initializable{
 		 return result.isPresent();
 		
 	}
+	
+	private String sortFriendName(String userName) {
+		if(userName.contains(",")) {
+			String[] groupMembers=userName.split(",");
+			List<String> names= (List<String>) Arrays.asList(groupMembers);
+			java.util.Collections.sort((java.util.List<String>) names );
+			userName=String.join(",", names);
+		}
+		return userName;
+	}
     
     @FXML
     public void iconAddNewFriendAction(MouseEvent event) {
     	
-    	if(showDialog("","TextField","Add New Friend","User Name :",MessageType.FriendRequest))
-    		System.out.println("adding new friend  ");
+    	showDialog("","TextField","Add New Friend","User Name :",MessageType.FriendRequest);
+    		
 		
 	}		
 	
 	@FXML
-	public void iconCreateGroupAction (MouseEvent event) {	}
+	public void iconCreateGroupAction (MouseEvent event) {
+		showDialog("","TextField","Add New Group \nseperated with comma","Group Members :",null);
+    		
+		
+	}
 	
 	
 	@FXML
@@ -260,22 +272,20 @@ public class ChatController implements Initializable{
 		
 		ObservableList<javafx.scene.Node> listelements=hbox.getChildren();
 		Text text = (Text)listelements.get(0);
-		String name=text.getText();
-		if(chatTabs.contains(name))
-		 System.out.println("clicked on " +name );
-		else 
-		 openNewTab(name,null);
+		String tabName=text.getText();
+		if(!chatTabs.contains(tabName))		 
+		 openNewTab(tabName,null);
 	}
 	
-	private void openNewTab(String name,Message msg) {
+	private void openNewTab(String tabName,Message msg) {
 		Platform.runLater(
 				  () -> {
 				 
-		System.out.println("starting chat with "+name);			
-		ChatBoxController controller=null;		
-		 Tab newtab=new Tab(name);
+		System.out.println("starting chat with "+tabName);			
+		ChatBoxController controller=null;
+		 Tab newtab=new Tab(tabName);
 		 try {
-			 controller= new ChatBoxController(name,msg);
+			 controller= new ChatBoxController(tabName,msg);
 			 FXMLLoader loader=new FXMLLoader(getClass().getResource("ChatBox.fxml"));
 			 loader.setController(controller);			
 			 newtab.setContent(loader.load());	 
@@ -285,30 +295,22 @@ public class ChatController implements Initializable{
 		 
 		 //tabs index start from 1,,ArrayList index from 0
 		 int index= tabPane.getTabs().size();
-		 System.out.println("tab pane index = "+tabPane.getTabs().size());
-		 tabPane.getTabs().add(tabPane.getTabs().size(), newtab); 
-		 
-         tabPane.getSelectionModel().select( tabPane.getTabs().size()-1); 
-        
-		 chatTabs.add(index-1, name);
+		 tabPane.getTabs().add(tabPane.getTabs().size(), newtab); 		 
+         tabPane.getSelectionModel().select( tabPane.getTabs().size()-1);         
+		 chatTabs.add(index-1, tabName);
 		 chatboxControllers.add(index-1,controller);
-		 System.out.println("chatboxcontrollers at "+ (index-1) +" = "+chatboxControllers.get(index-1).getClass().getName());
 				  }
 				);
 	}
 
-	private void sendChatMsgToTab(String sender,Message recieved) {
+	private void sendChatMsgToTab(String tabName,Message recieved) {
 		Platform.runLater(
 				  () -> {
 					  
-		    System.out.println("looking for " +sender+" controller" );
-			
-			int index=chatTabs.indexOf(recieved.getUser().getUserName());
-		    System.out.println("index for sender controller = "+index);
-		    
+			int index=chatTabs.indexOf(tabName);
 			ChatBoxController controller=chatboxControllers.get(index);
 			String chatMsg=recieved.getMsg();
-			controller.setMsginBox(sender, chatMsg);
+			controller.setMsginBox(recieved.getUser().getUserName(), chatMsg);
 		    
 				  });
 	}
@@ -324,8 +326,6 @@ public class ChatController implements Initializable{
 	private void setContactsListStatusChanged(Message recieved) {
 		Platform.runLater(
 				  () -> {
-					  System.out.println(recieved.getUser().getUserName()+" is "+recieved.getUser().getStatus());	
-					 //green or grey something in contacts list view to show status :done
 					  SetFriendListItem(recieved.getUser());
 					  
 				  });
@@ -334,17 +334,13 @@ public class ChatController implements Initializable{
 		    
 	class Reciever extends Thread{
 		
-		 
 		     public void run()
 		     {
-		    	 System.out.println("Starting thread reciever from server..");	
 		    	 Message recieved;
 		        	try {
 		        		while(true)
 				        {
 		        			recieved = (Message)input.readObject();
-				        	
-				        	System.out.println("recieved msg"+recieved.getType());							
 						
 							if(recieved.getType()==MessageType.FriendRequest)
 							{
@@ -357,13 +353,13 @@ public class ChatController implements Initializable{
 							}
 							else if(recieved.getType()==MessageType.ChatMessage)
 							{								
-								String sender=recieved.getUser().getUserName();								
-								if(chatTabs.contains(sender)) 
+								String tabName=recieved.getGroupMembers();								
+								if(chatTabs.contains(tabName)) 
 								{									
-									sendChatMsgToTab(sender,recieved);					
+									sendChatMsgToTab(tabName,recieved);					
 								}
 								else 
-								    openNewTab(sender,recieved);
+								    openNewTab(tabName,recieved);
 							}
 					  }
 		        	}catch (ClassNotFoundException|IOException e) {

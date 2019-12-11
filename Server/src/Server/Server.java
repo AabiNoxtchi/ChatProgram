@@ -6,9 +6,12 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
+
 import Messages.*;
 
 
@@ -198,9 +201,42 @@ public class Server {
 
 		private void forwardChatMsgs(Message msg) {
 			
-			User user=msg.getUser();
-			msg.setUser(currentUser);			
-			notify(msg,user.getUserName());			
+			String msgRecepient=msg.getGroupMembers();
+			User user=new User();
+			user.setUserName(currentUser.getUserName());
+			msg.setUser(user);
+			if (msgRecepient.contains(",")) {
+				String[] recepients=msgRecepient.split(",");
+				msgRecepient=currentUser.getUserName()+","+msgRecepient;
+				
+				for(String r:recepients)
+				{	
+					if(! r.equals(currentUser.getUserName())) {	
+					String recepient=sortFriendName(msgRecepient,r);
+					msg.setGroupMembers(recepient);
+					notify(msg,r);	
+				  }
+				}
+			}else {
+				msg.setGroupMembers(currentUser.getUserName());		
+			    notify(msg,msgRecepient);
+			}
+		}
+		
+		private String sortFriendName(String msgRecepient,String r) {
+				
+			    String[] recepients=msgRecepient.split(",");
+				List<String> names= (List<String>) Arrays.asList(recepients);
+				java.util.Collections.sort((java.util.List<String>) names );
+				String recepient=String.join(",", names);
+				String toReplace="";
+				if(recepient.indexOf(r)==0)
+			         toReplace=r+",";
+				else 
+					 toReplace=","+r;
+					
+				recepient=recepient.replace(toReplace,"");
+				return recepient;
 		}
 		
 		private void addToFriendList(User user,User friend) {

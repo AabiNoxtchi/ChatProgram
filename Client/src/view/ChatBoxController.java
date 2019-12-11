@@ -64,19 +64,19 @@ public class ChatBoxController implements Initializable {
     @FXML
     private TextField txtFieldMsg;
    
-    @FXML
+    @FXML 
     private ListView<HBox> listviewChat;
    
   
    // ArrayList<Message> History = new ArrayList<>();
-    private String recipient;
+    private String recipients;
     private Message Msg;
     
-    public ChatBoxController(String recipient) {
-    	this.recipient=recipient;
-    }
-    public ChatBoxController(String recipient,Message msg) {
-    	this.recipient=recipient;
+//    public ChatBoxController(String recipient) {
+//    	this.recipient=recipient;
+//    }
+    public ChatBoxController(String tabName,Message msg) {
+    	this.recipients=tabName;
     	this.Msg=msg;
     }
 
@@ -101,9 +101,10 @@ public class ChatBoxController implements Initializable {
                 //add to history
                
                 User user=new User();
-                user.setUserName(recipient);
+               // user.setUserName(recipient);
                 Message msg=new Message();
-                msg.setUser(user);
+                msg.setGroupMembers(recipients);
+               // msg.setUser(user);
                 msg.setMsg(chatMsg);
                 msg.setType(MessageType.ChatMessage);
                 ClientHome.sendMsgs(msg);

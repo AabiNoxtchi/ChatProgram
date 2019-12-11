@@ -15,6 +15,8 @@ public class Message implements Serializable{
 	
 	private User user; 
 	
+	 private String groupMembers;
+	
 	public MessageType getType() {
 		return type;
 	}
@@ -37,6 +39,14 @@ public class Message implements Serializable{
 
 	public void setMsg(String msg) {
 		this.msg = msg;
+	}
+
+	public String getGroupMembers() {
+		return groupMembers;
+	}
+
+	public void setGroupMembers(String groupMembers) {
+		this.groupMembers = groupMembers;
 	}
 
 	
