@@ -404,8 +404,10 @@ public class ChatController implements Initializable{
 					  
 			int index=chatTabs.indexOf(tabName);
 			ChatBoxController controller=chatboxControllers.get(index);
+			
+			
 			String chatMsg=recieved.getMsg();
-			controller.setMsginBox(recieved.getUser().getUserName(), chatMsg);
+			controller.setMsginBox(recieved.getUser().getUserName(), chatMsg,recieved.getFileTransfer());
 			
 			Tab tab=tabPane.getTabs().get(index+1);
 			if(!tab.isSelected()) {
@@ -474,7 +476,7 @@ public class ChatController implements Initializable{
 								SetContactsListStatusChanged(recieved);
 															
 							}
-							else if(recieved.getType()==MessageType.ChatMessage)
+							else if(recieved.getType()==MessageType.ChatMessage||recieved.getType()==MessageType.FileTransfer)
 							{								
 								String tabName=recieved.getGroupMembers();								
 								if(chatTabs.contains(tabName)) 

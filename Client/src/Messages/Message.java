@@ -18,6 +18,8 @@ public class Message implements Serializable{
 	
 	private User user; 
 	
+	private FileTransfer fileTransfer;
+	
 	public MessageType getType() { 
 		return type;
 	}
@@ -50,6 +52,15 @@ public class Message implements Serializable{
 		this.groupMembers = groupMembers;
 	}
 
+	public FileTransfer getFileTransfer() {
+		return fileTransfer;
+	}
+
+	public void setFileTransfer(FileTransfer fileTransfer) {
+		this.fileTransfer = fileTransfer;
+	}
+
+	
 	
 
 }

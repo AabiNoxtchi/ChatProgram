@@ -5,15 +5,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Scanner;
-
 import Messages.Message;
 import Messages.MessageType;
-import Messages.User;
-import view.ChatController;
 
 public class ClientHome {
 	

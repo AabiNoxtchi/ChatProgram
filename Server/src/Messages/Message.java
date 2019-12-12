@@ -12,8 +12,12 @@ public class Message implements Serializable{
     private MessageType type;
     
     private String msg;
+    
+   // private byte[] fileContent;
 	
 	private User user; 
+	
+	private FileTransfer fileTransfer;
 	
 	 private String groupMembers;//tabName or the recepient or recepients of the msg
 	
@@ -47,6 +51,14 @@ public class Message implements Serializable{
 
 	public void setGroupMembers(String groupMembers) {
 		this.groupMembers = groupMembers;
+	}
+
+	public FileTransfer getFileTransfer() {
+		return fileTransfer;
+	}
+
+	public void setFileTransfer(FileTransfer fileTransfer) {
+		this.fileTransfer = fileTransfer;
 	}
 
 	

@@ -6,7 +6,9 @@
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
+		<item key="selection" value="public class FileTransfer {"/>
 		<list key="findhistory">
+			<item value="public class FileTransfer {"/>
 		</list>
 		<list key="replacehistory">
 		</list>

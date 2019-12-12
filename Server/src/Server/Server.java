@@ -116,12 +116,17 @@ public class Server {
 			                        	   addToFriendList(msg.getUser(),currentUser);
 			                        	   break;
 			                        	   
-			                           case ChatMessage:			                        	  
-			                        	   forwardChatMsgs(msg);			                        	  
+			                           case ChatMessage:
+			                           case FileTransfer:			                        	  
+			                        	   forwardChatMsgs(msg);
+			                        	   System.out.println("recieved  msg "+msg.getType());
+			                        	   if(msg.getType()==MessageType.FileTransfer) {
+			                        		   System.out.println("filetransfer.content.length = "+msg.getFileTransfer().getFileContent().length);
+			                        	   }
 			                        	   break;
 			                        	   
 			                           case LogOut:			                        	  
-			                        	   System.out.println("recieved log out msg ");
+			                        	   
 			                        	   if(input!=null)
 			       							input.close();
 			       							if(socket!=null)
