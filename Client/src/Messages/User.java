@@ -42,8 +42,8 @@ public class User implements Serializable{
 			return false;
 		User user=(User)o;
 		return
-				getUserName().equals(user.getUserName())&&
-				getPassword().equals(user.getPassword());
+				getUserName().equals(user.getUserName());
+				
 	}
 	
 	@Override

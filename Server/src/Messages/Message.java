@@ -15,7 +15,7 @@ public class Message implements Serializable{
 	
 	private User user; 
 	
-	 private String groupMembers;
+	 private String groupMembers;//tabName or the recepient or recepients of the msg
 	
 	public MessageType getType() {
 		return type;

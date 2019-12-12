@@ -1,6 +1,6 @@
 package Messages;
 
 public enum Status {
-	Online,OffLine
+	Online,OffLine,Unknown
 
 }

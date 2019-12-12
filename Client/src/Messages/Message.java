@@ -14,7 +14,7 @@ public class Message implements Serializable{
     
     private String msg;
     
-    private String groupMembers;
+    private String groupMembers;//tabName or the recepient/recepients of the msg
 	
 	private User user; 
 	

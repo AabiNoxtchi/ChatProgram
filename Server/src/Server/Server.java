@@ -167,8 +167,11 @@ public class Server {
 		
 		private void getOnlineFriendsStatus() {
 			HashSet<String> friends=friendsLists.get(currentUser.getUserName());
+			System.out.println("checking friends");
 			if(friends != null)
+				
 			for(String friend : friends){
+				System.out.println(friend);
 				if(onlineUserMapping.containsKey(friend)) {
 					User user=new User();
 					user.setUserName(friend);

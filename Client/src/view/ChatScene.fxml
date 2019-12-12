@@ -46,7 +46,7 @@
          <right>
             <HBox prefHeight="48.0" prefWidth="161.0" BorderPane.alignment="CENTER">
                <children>
-                  <ImageView fx:id="iconAddNewFriend" fitHeight="29.0" fitWidth="30.0" onMouseClicked="#iconAddNewFriendAction" pickOnBounds="true" preserveRatio="true">
+                  <ImageView  fitHeight="29.0" fitWidth="30.0" onMouseClicked="#iconAddNewFriendAction" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@/resources/add_friend.png" />
                      </image>
@@ -54,7 +54,7 @@
                         <Insets right="15.0" />
                      </HBox.margin>
                   </ImageView>
-                  <ImageView fx:id="iconCreateGroup" fitHeight="39.0" fitWidth="43.0" onMouseClicked="#iconCreateGroupAction" pickOnBounds="true" preserveRatio="true">
+                  <ImageView  fitHeight="39.0" fitWidth="43.0" onMouseClicked="#iconCreateGroupAction" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@/resources/group-registration.png" />
                      </image>
@@ -62,7 +62,7 @@
                         <Insets right="15.0" />
                      </HBox.margin>
                   </ImageView>
-                  <ImageView fx:id="iconLogout" fitHeight="29.0" fitWidth="28.0" onMouseClicked="#iconLogoutAction" pickOnBounds="true" preserveRatio="true">
+                  <ImageView  fitHeight="29.0" fitWidth="28.0" onMouseClicked="#iconLogoutAction" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@/resources/logout-icon-transparent-18.jpg" />
                      </image>
@@ -85,16 +85,17 @@
                <children>
                   <TabPane prefHeight="386.0" prefWidth="194.0" style="-fx-background-color: #FFE29E;" tabClosingPolicy="UNAVAILABLE">
                      <tabs>
-                        <Tab fx:id="contactsTab" text="Friends">
+                        <Tab  text="Friends">
                            <content>
                               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
-                                    <ListView fx:id="contactsListTab" onMouseClicked="#chatwithcontact" prefHeight="291.0" prefWidth="200.0" style="-fx-background-color: #FFF0CC;" />
+                                    <ListView fx:id="contactsListTab" onMouseClicked="#Chatwithcontact" prefHeight="291.0" prefWidth="200.0" style="-fx-background-color: #FFF0CC;" />
                                  </children>
                               </AnchorPane>
                            </content>
                         </Tab>
-                        <Tab fx:id="requestsTab" text="Requests">
+                        
+                        <Tab fx:id="requestsTab" text="Requests" onSelectionChanged="#RequestsTabAction">
                            <content>
                               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="170.0" prefWidth="198.0">
                                  <children>
