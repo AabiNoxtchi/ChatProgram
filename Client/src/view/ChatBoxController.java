@@ -132,6 +132,7 @@ public class ChatBoxController implements Initializable {//load history in initi
         			    chooser.setTitle("Choose location To Save file"); 
         			    chooser.setInitialFileName(fileTransfer.getFileName());
         			    File selectedFile = chooser.showSaveDialog(null);
+        			    if(selectedFile!=null) {
         			    //not sure whether to bother to check if user changed name cause the path is what matters
         			    System.out.println("selectedFile.getAbsolutePath() = "+selectedFile.getAbsolutePath()+ "\n"
         			    		+ "selectedFile.toPath() = "+selectedFile.toPath()+"\n"
@@ -143,6 +144,7 @@ public class ChatBoxController implements Initializable {//load history in initi
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
+        			    }
         		 }
         		 
         	 });

@@ -24,10 +24,8 @@
 <fullyQualifiedTypeName name="javafx.scene.control.CheckBox"/>
 <fullyQualifiedTypeName name="sun.swing.BakedArrayList"/>
 <fullyQualifiedTypeName name="javafx.scene.shape.Circle"/>
-<fullyQualifiedTypeName name="javafx.scene.paint.Color"/>
 <fullyQualifiedTypeName name="java.awt.Label"/>
 <fullyQualifiedTypeName name="javafx.scene.control.Label"/>
-<fullyQualifiedTypeName name="Messages.MessageType"/>
 <fullyQualifiedTypeName name="ClientSocket.ClientHome"/>
 <fullyQualifiedTypeName name="java.awt.List"/>
 <fullyQualifiedTypeName name="java.util.Arrays"/>
@@ -52,4 +50,7 @@
 <fullyQualifiedTypeName name="java.io.File"/>
 <fullyQualifiedTypeName name="javafx.scene.image.Image"/>
 <fullyQualifiedTypeName name="javafx.scene.image.ImageView"/>
+<fullyQualifiedTypeName name="javafx.scene.paint.Color"/>
+<fullyQualifiedTypeName name="Messages.MessageType"/>
+<fullyQualifiedTypeName name="java.nio.file.Path"/>
 </qualifiedTypeNameHistroy>
