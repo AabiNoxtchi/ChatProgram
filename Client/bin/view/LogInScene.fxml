@@ -20,11 +20,11 @@
       <Text fill="#000000b6" layoutX="134.0" layoutY="191.0" strokeType="OUTSIDE" strokeWidth="0.0" text="password" />
       <TextField fx:id="txtUserName" layoutX="135.0" layoutY="129.0" promptText="username" />
       <PasswordField fx:id="txtPassword" layoutX="135.0" layoutY="204.0" promptText="******" />
-      <Button fx:id="btnLogin" layoutX="184.0" layoutY="257.0" mnemonicParsing="false" onAction="#btnLoginAction" style="-fx-background-color: #FFC133;" text="Log in">
+      <Button fx:id="btnLogin" layoutX="184.0" layoutY="257.0" mnemonicParsing="false" onAction="#loginActionbtn" style="-fx-background-color: #FFC133;" text="Log in">
          <font>
             <Font size="14.0" />
          </font>
       </Button>
-      <Hyperlink fx:id="linkCreateAccount" layoutX="101.0" layoutY="300.0" onAction="#linkCreatAccountAction" text="Don't have an account? Register now" />
+      <Hyperlink fx:id="linkCreateAccount" layoutX="101.0" layoutY="300.0" onAction="#creatAccountActionLink" text="Don't have an account? Register now" />
    </children>
 </AnchorPane>
