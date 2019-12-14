@@ -116,7 +116,7 @@ public class ChatBoxController implements Initializable {//load history in initi
         	 fileHBox.setStyle(style);
         	 cell.getChildren().addAll(sendLabel,fileHBox);
         	 
-        	 //the listner //
+        	 //the listner for file containing items //
         	 fileHBox.setOnMouseClicked(event->{
         		 
         		 if(fileTransfer.getAbsolutePath()!=null) {
