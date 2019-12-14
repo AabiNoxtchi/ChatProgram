@@ -39,10 +39,8 @@ public class LoginController {
    // private ClientHome clientHome;
 
     @FXML
-    private void btnLoginAction(ActionEvent event) {
+    private void loginActionbtn(ActionEvent event) {
         try {
-
-            
 
             String username = txtUserName.getText();
             String password = txtPassword.getText();
@@ -70,9 +68,9 @@ public class LoginController {
                    stage.setResizable(false);
                    stage.show();*/
         		   
-        		   
-        		  
-        		   Stage stage = ((Stage) ((Node) (event.getSource())).getScene().getWindow());
+        		   ((Node) (event.getSource())).getScene().getWindow().hide();
+        		   Stage stage = new Stage();  
+        		  // Stage stage = ((Stage) ((Node) (event.getSource())).getScene().getWindow());
         		   Parent root = FXMLLoader.load(getClass().getResource("ChatScene.fxml"));	
         		   stage.setScene(new Scene(root));
         		   stage.setResizable(false);
@@ -95,17 +93,10 @@ public class LoginController {
     }
 
 	@FXML
-    private void linkCreatAccountAction(ActionEvent event) {
+    private void creatAccountActionLink(ActionEvent event) {
         try {
-        	/*((Node) (event.getSource())).getScene().getWindow().hide();
-            Parent parent = FXMLLoader.load(getClass().getResource("RegisterScene.fxml"));
-            Stage stage = new Stage();
-            Scene scene = new Scene(parent);
-            stage.setScene(scene);
-            stage.setResizable(false);
-            stage.show();*/
-        	//((Node) (event.getSource())).getScene().getWindow()
-        	Stage stage = ((Stage) ((Node) (event.getSource())).getScene().getWindow());
+        	
+           Stage stage = ((Stage) ((Node) (event.getSource())).getScene().getWindow());
  		   Parent root = FXMLLoader.load(getClass().getResource("RegisterScene.fxml"));	
  		   stage.setScene(new Scene(root));
  		   stage.setResizable(false);

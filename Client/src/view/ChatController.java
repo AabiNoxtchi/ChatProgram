@@ -88,8 +88,8 @@ public class ChatController implements Initializable{
 		currentuser=ClientHome.getCurrentUser();
 		homeLabel.setText(currentuser);
 		input=ClientHome.getInput();
-		SetFriendsList();
-		SetRequestsList();
+		setFriendsList();
+		setRequestsList();
 		reciever = new Reciever();
 		reciever.start();
 		
@@ -104,8 +104,10 @@ public class ChatController implements Initializable{
         }
 	}
 	
+	
+	
 	@FXML
-	public void RequestsTabAction(Event event) {
+	public void requestsTabAction(Event event) {
 		 if (requestsTab.isSelected()) {
 			 if(requestsTab.getGraphic()!=null) {
 				friendRequestNotificationsNumber=0;
@@ -118,13 +120,13 @@ public class ChatController implements Initializable{
     @FXML
     public void iconAddNewFriendAction(MouseEvent event) {
    	
-   	ShowDialog("","TextField","Add New Friend","User Name :",MessageType.FriendRequest);
+   	    showDialog("","TextField","Add New Friend","User Name :",MessageType.FriendRequest);
 		
 	}		
 	
 	@FXML
 	public void iconCreateGroupAction (MouseEvent event) {
-		ShowDialog("","TextField","Add New Group \nseperated with comma","Group Members :",null);
+		showDialog("","TextField","Add New Group \nseperated with comma","Group Members :",null);
    		
 	}
 		
@@ -134,7 +136,7 @@ public class ChatController implements Initializable{
 	}
 	
 	@FXML
-	public void Chatwithcontact(MouseEvent event) {
+	public void chatwithcontact(MouseEvent event) {
 		HBox hbox= contactsListTab.getSelectionModel().getSelectedItem();
 		
 		ObservableList<javafx.scene.Node> listelements=hbox.getChildren();
@@ -145,28 +147,34 @@ public class ChatController implements Initializable{
 		int index=chatTabs.indexOf(tabName);
 		//if(!chatTabs.contains(tabName))
 		if(index==-1)
-		 OpenNewTab(tabName,null);
+		 openNewTab(tabName,null);
 		else {
 			tabPane.getSelectionModel().select( index+1); 
 		}
 	}
 	
-	private void AddToFriends(User friend) {
+	private void addToFriends(User friend) {
 		 friends.add(friend);//need to save in data base
 		
 	}
 	
-	private void AddToFriendRequests(String friendName) {
+	private void addToFriendRequests(String friendName) {
 		requestsListview.getItems().add(friendName);
 		
 	}
 	
-	private void RemoveFromFriendRequests(String friendName) {
+	private void removeFromFriendRequests(String friendName) {
 		 friendrequestsList.remove(friendName); 
 		 //remove from data base requests if exist
 	}
 	
-	private HBox CreateNotification(int number,String tabName) {
+	private String getPaddedString(String tabName) {
+		if(tabName.length()<10)
+		return String.format("%-" + 10 + "s", tabName);
+		else return tabName;
+	}
+	
+	private HBox createNotification(int number,String tabName) {
 		HBox hbox=new HBox();
 		StackPane p = new StackPane();
         Label label = new Label(""+number);
@@ -177,30 +185,31 @@ public class ChatController implements Initializable{
         circle.setSmooth(true);
         p.getChildren().addAll(circle, label);
         p.setMinWidth(6);
+        tabName=getPaddedString(tabName);
         Label name=new Label(tabName);        
         hbox.getChildren().addAll(name,p);
         return hbox;
     }
 	
-    private void SetRequestsList() {
+    private void setRequestsList() {
     	
     	//friendrequestsList = if theres any requests in data base
 		 requestsListview.setItems(friendrequestsList);		
 	}
 
-	private void SetFriendsList() {
+	private void setFriendsList() {
 	
 		// friends = fill contactsList from data base here // 
 		
 		for(User friend : friends) {
-			 SetFriendListItem(friend);
+			 setFriendListItem(friend);
 		}
 		
 		contactsListTab.setItems(contactsList);
 			
 	}
 	    
-	private void SetFriendListItem(User friend) {
+	private void setFriendListItem(User friend) {
 		
 		boolean done = false;
 		HBox hbox=null;
@@ -238,15 +247,15 @@ public class ChatController implements Initializable{
 	}
 
 	@FXML
-	private void ApproveFriendRequests(MouseEvent event) {
+	private void approveFriendRequests(MouseEvent event) {
 		 String friendName=requestsListview.getSelectionModel().getSelectedItem().toString();
-    	 if(ShowDialog(friendName,"Text","Accept Friend Request","Friend request from : ",MessageType.ApprovedFriendRequest))
+    	 if(showDialog(friendName,"Text","Accept Friend Request","Friend request from : ",MessageType.ApprovedFriendRequest))
     	 {
-    		 RemoveFromFriendRequests(friendName);
+    		 removeFromFriendRequests(friendName);
     	 }
 	}
 
-	private boolean ShowDialog(String name,String TextFieldType,String title,String text,MessageType msgType) {
+	private boolean showDialog(String name,String TextFieldType,String title,String text,MessageType msgType) {
 		
 		 Dialog<String> dialog = new Dialog<>();
 		 dialog.setTitle(title);
@@ -305,7 +314,7 @@ public class ChatController implements Initializable{
 		 Optional<String> result = dialog.showAndWait();
 			 
 		 result.ifPresent(userName->{
-			 userName=SortFriendName(userName);
+			 userName=sortFriendName(userName);
 			 User friend=new User();
 			 friend.setUserName(userName);
 			 
@@ -318,15 +327,15 @@ public class ChatController implements Initializable{
 						 msg.setUser(friend);
 						 ClientHome.sendMsgs(msg);
 					 }
-				 AddToFriends(friend);				
-				 SetFriendListItem(friend);
+				 addToFriends(friend);				
+				 setFriendListItem(friend);
 			 }
 		 });
 		 
 		 return result.isPresent();
 	}
 
-	private String SortFriendName(String userName) {
+	private String sortFriendName(String userName) {
 		if(userName.contains(",")) {
 			String[] groupMembers=userName.split(",");
 			List<String> names= (List<String>) Arrays.asList(groupMembers);
@@ -336,20 +345,21 @@ public class ChatController implements Initializable{
 		return userName;
 	}
     
-	private void OpenNewTab(String tabName,Message msg) {
+	private void openNewTab(String tabName,Message msg) {
 		Platform.runLater(
 				  () -> {
 					  
 					  User friend=new User();
 					  friend.setUserName(tabName);
-					  if(!ChecktabNameisFriend(friend)) {
+					  if(!checktabNameisFriend(friend)) {
 						  //friend.setStatus(Status.Unknown);
 						  System.out.println("user "+tabName+" is not in friend list");	
-						  SetFriendListItem(friend);
+						  setFriendListItem(friend);
 						  }
 					  
 			ChatBoxController controller=null;
-			String paddedTabName=String.format("%-" + 10 + "s", tabName); 
+			String paddedTabName=getPaddedString(tabName);
+					
 			Tab newtab=new Tab(paddedTabName);
 			
 		 try {
@@ -373,7 +383,7 @@ public class ChatController implements Initializable{
 		 }else {
 			if(!newtab.isSelected()) {
 			    notificationNumbers.put( tabName, 1);
-				HBox icon =   CreateNotification(1,paddedTabName);
+				HBox icon =   createNotification(1,paddedTabName);
 				newtab.setText("");
 				newtab.setGraphic(icon);
 				
@@ -387,18 +397,18 @@ public class ChatController implements Initializable{
 					newtab.setText(paddedTabName);
 		        }
 		    });
-		 
 		
-				  }
-				);
+		  });
 	}
 
-	private boolean ChecktabNameisFriend(User friend) {
+	
+
+	private boolean checktabNameisFriend(User friend) {
 		if(friends.contains(friend))return true; 
 		return false;
 	}
 
-	private void SendChatMsgToTab(String tabName,Message recieved) {
+	private void sendChatMsgToTab(String tabName,Message recieved) {
 		Platform.runLater(
 				  () -> {
 					  
@@ -412,7 +422,7 @@ public class ChatController implements Initializable{
 			Tab tab=tabPane.getTabs().get(index+1);
 			if(!tab.isSelected()) {
 				
-				int notificationNumber=1;
+				int notificationNumber=1; // not sure r we gonna save notifications in data base //
 				if( !notificationNumbers.containsKey(tabName))
 				{
 			        notificationNumbers.put( tabName, notificationNumber);
@@ -422,8 +432,8 @@ public class ChatController implements Initializable{
 					notificationNumbers.put(tabName, notificationNumbers.get(tabName) + 1);
 					notificationNumber=notificationNumbers.get(tabName);
 				}
-				String paddedTabName=String.format("%-" + 10 + "s", tabName); 
-				HBox icon =   CreateNotification(notificationNumber,paddedTabName);
+				String paddedTabName=getPaddedString(tabName) ; 
+				HBox icon =   createNotification(notificationNumber,paddedTabName);
 				tab.setText("");
 				tab.setGraphic(icon);
 				
@@ -432,15 +442,15 @@ public class ChatController implements Initializable{
 				  });
 	}
 	
-	private void AddFriendRequest(Message recieved) {
+	private void addFriendRequest(Message recieved) {
 		Platform.runLater(
 				  () -> {
-					  AddToFriendRequests(recieved.getUser().getUserName());
+					  addToFriendRequests(recieved.getUser().getUserName());
 		
 		
 		if(!requestsTab.isSelected()) {
 			
-			HBox icon =   CreateNotification(friendRequestNotificationsNumber,requestsTab.getText());
+			HBox icon =   createNotification(friendRequestNotificationsNumber,requestsTab.getText());
 			requestsTab.setText("");
 			requestsTab.setGraphic(icon);
 			}
@@ -448,10 +458,10 @@ public class ChatController implements Initializable{
 	 });
 }	
 
-	private void SetContactsListStatusChanged(Message recieved) {
+	private void setContactsListStatusChanged(Message recieved) {
 		Platform.runLater(
 				  () -> {
-					  SetFriendListItem(recieved.getUser());
+					  setFriendListItem(recieved.getUser());
 					  
 				  });
 	}
@@ -469,11 +479,11 @@ public class ChatController implements Initializable{
 							if(recieved.getType()==MessageType.FriendRequest)
 							{
 								    friendRequestNotificationsNumber++;
-								    AddFriendRequest(recieved);									
+								    addFriendRequest(recieved);									
 							}
 							else if(recieved.getType()==MessageType.StatusChanged) 
 							{	
-								SetContactsListStatusChanged(recieved);
+								setContactsListStatusChanged(recieved);
 															
 							}
 							else if(recieved.getType()==MessageType.ChatMessage||recieved.getType()==MessageType.FileTransfer)
@@ -481,10 +491,10 @@ public class ChatController implements Initializable{
 								String tabName=recieved.getGroupMembers();								
 								if(chatTabs.contains(tabName)) 
 								{									
-									SendChatMsgToTab(tabName,recieved);					
+									sendChatMsgToTab(tabName,recieved);					
 								}
 								else 
-								    OpenNewTab(tabName,recieved);
+								    openNewTab(tabName,recieved);
 							}
 					  }
 		        	}catch (ClassNotFoundException|IOException e) {

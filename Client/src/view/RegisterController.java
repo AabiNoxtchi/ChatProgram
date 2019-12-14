@@ -37,7 +37,7 @@ public class RegisterController {
 	    private Hyperlink linkLogIn;
 	    
 	    @FXML
-	    private void btnRegisterAction(ActionEvent event) {
+	    private void registerActionbtn(ActionEvent event) {
 	        try {	           
 	        	
 	            String username = txtUserName.getText();
@@ -46,6 +46,10 @@ public class RegisterController {
 	            if(username.length()==0 || password.length()==0) {
 	            	
 	            	txtRegisterError.setText("Error in Register Fields ,All Fields are Requiered  ! ");
+	            	txtRegisterError.setWrappingWidth(400);
+	            }else if(username.contains(",")) {
+	            	
+	            	txtRegisterError.setText("User Name cant contain ','  ! ");
 	            	txtRegisterError.setWrappingWidth(400);
 	            }else{	            	
 	            
@@ -73,21 +77,14 @@ public class RegisterController {
 	    }
 	    
 	    @FXML
-	    private void linkLogInAction(ActionEvent event) {
+	    private void logInActionLink(ActionEvent event) {
 	    	continueToLoginScene(event);
 	    }
 
 		private void continueToLoginScene(ActionEvent event) {
 			
 			try {
-			/*((Node) (event.getSource())).getScene().getWindow().hide();
-            Parent parent = FXMLLoader.load(getClass().getResource("LogInScene.fxml"));			
-            Stage stage = new Stage();
-            Scene scene = new Scene(parent);
-            stage.setScene(scene);
-            stage.setResizable(false);
-            stage.show();*/
-				
+			
 				Stage stage = ((Stage) ((Node) (event.getSource())).getScene().getWindow());
 		 		   Parent root = FXMLLoader.load(getClass().getResource("LogInScene.fxml"));	
 		 		   stage.setScene(new Scene(root));

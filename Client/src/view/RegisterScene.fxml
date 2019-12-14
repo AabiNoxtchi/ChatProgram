@@ -22,7 +22,7 @@
       
       <PasswordField fx:id="txtPassword" layoutX="106.0" layoutY="204.0" promptText="********" />
       <Text fill="#000000b5" layoutX="107.0" layoutY="194.0" strokeType="OUTSIDE" strokeWidth="0.0" text="password" />
-      <Button fx:id="btnRegister" layoutX="122.0" layoutY="254.0" mnemonicParsing="false" onAction="#btnRegisterAction" prefHeight="25.0" prefWidth="155.0" style="-fx-background-color: #FFC133;" text="Register" />
-      <Hyperlink fx:id="linkLogIn" layoutX="101.0" layoutY="300.0" onAction="#linkLogInAction" text="Already have an account? login " />
+      <Button fx:id="btnRegister" layoutX="122.0" layoutY="254.0" mnemonicParsing="false" onAction="#registerActionbtn" prefHeight="25.0" prefWidth="155.0" style="-fx-background-color: #FFC133;" text="Register" />
+      <Hyperlink fx:id="linkLogIn" layoutX="101.0" layoutY="300.0" onAction="#logInActionLink" text="Already have an account? login " />
    </children>
 </AnchorPane>
