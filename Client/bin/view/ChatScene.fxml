@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #FFE29E;" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.ChatController">
+   <top>
+      <BorderPane prefHeight="74.0" prefWidth="600.0" style="-fx-background-color: #ffffff;" BorderPane.alignment="CENTER">
+         <left>
+            <HBox prefHeight="100.0" prefWidth="200.0" style="-fx-border-color: #000000;" BorderPane.alignment="CENTER">
+               <children>
+                  <ImageView fitHeight="63.0" fitWidth="52.0" pickOnBounds="true" preserveRatio="true">
+                     <HBox.margin>
+                        <Insets left="15.0" top="10.0" />
+                     </HBox.margin>
+                     <image>
+                        <Image url="@/resources/user.jpg" />
+                     </image>
+                  </ImageView>
+                  <VBox prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Label fx:id="homeLabel" contentDisplay="TOP" prefHeight="17.0" prefWidth="107.0" text="username">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="10.0" top="10.0" />
+                           </VBox.margin>
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </Label>
+                        
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+         </left>
+         <center>
+            <Text fill="#000000b5" strokeType="OUTSIDE" strokeWidth="0.0" text="Chat Client" wrappingWidth="182.3525390625" BorderPane.alignment="CENTER">
+               <font>
+                  <Font size="37.0" />
+               </font>
+            </Text>
+         </center>
+         <right>
+            <HBox prefHeight="48.0" prefWidth="161.0" BorderPane.alignment="CENTER">
+               <children>
+                  <ImageView  fitHeight="29.0" fitWidth="30.0" onMouseClicked="#iconAddNewFriendAction" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@/resources/add_friend.png" />
+                     </image>
+                     <HBox.margin>
+                        <Insets right="15.0" />
+                     </HBox.margin>
+                  </ImageView>
+                  <ImageView  fitHeight="39.0" fitWidth="43.0" onMouseClicked="#iconCreateGroupAction" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@/resources/group-registration.png" />
+                     </image>
+                     <HBox.margin>
+                        <Insets right="15.0" />
+                     </HBox.margin>
+                  </ImageView>
+                  <ImageView  fitHeight="29.0" fitWidth="28.0" onMouseClicked="#iconLogoutAction" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@/resources/logout-icon-transparent-18.jpg" />
+                     </image>
+                     <HBox.margin>
+                        <Insets right="15.0" />
+                     </HBox.margin>
+                  </ImageView>
+               </children>
+               <BorderPane.margin>
+                  <Insets top="20.0" />
+               </BorderPane.margin>
+            </HBox>
+         </right>
+      </BorderPane>
+   </top>
+   <left>
+      <SplitPane fx:id="splitPane" dividerPositions="0.32459016393442625" prefHeight="384.0" prefWidth="612.0" BorderPane.alignment="CENTER">
+         <items>
+            <VBox fx:id="leftPane" prefHeight="338.0" prefWidth="198.0" style="-fx-background-color: #fff;" SplitPane.resizableWithParent="false">
+               <children>
+                  <TabPane prefHeight="386.0" prefWidth="194.0" style="-fx-background-color: #FFE29E;" tabClosingPolicy="UNAVAILABLE">
+                     <tabs>
+                        <Tab  text="Friends">
+                           <content>
+                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <ListView fx:id="contactsListTab" onMouseClicked="#Chatwithcontact" prefHeight="291.0" prefWidth="200.0" style="-fx-background-color: #FFF0CC;" />
+                                 </children>
+                              </AnchorPane>
+                           </content>
+                        </Tab>
+                        
+                        <Tab fx:id="requestsTab" text="Requests" onSelectionChanged="#RequestsTabAction">
+                           <content>
+                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="170.0" prefWidth="198.0">
+                                 <children>
+                                    <ListView fx:id="requestsListview" onMouseClicked="#ApproveFriendRequests" prefHeight="352.0" prefWidth="199.0" />
+                                 </children>
+                              </AnchorPane>
+                           </content>
+                        </Tab>
+                     </tabs>
+                  </TabPane>
+               </children>
+            </VBox>
+            <TabPane fx:id="tabPane" prefHeight="382.0" prefWidth="77.0" tabClosingPolicy="UNAVAILABLE" SplitPane.resizableWithParent="false">
+               <tabs>
+                  <Tab fx:id="homeBox" closable="false" text="Home">
+                     <content>
+                     </content>
+                  </Tab>
+               </tabs>
+            </TabPane>
+         </items>
+      </SplitPane>
+   </left>
+</BorderPane>
