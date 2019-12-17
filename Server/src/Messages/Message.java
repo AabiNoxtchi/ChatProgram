@@ -12,14 +12,13 @@ public class Message implements Serializable{
     private MessageType type;
     
     private String msg;
-    
-   // private byte[] fileContent;
 	
 	private User user; 
 	
 	private FileTransfer fileTransfer;
 	
-	 private String groupMembers;//tabName or the recepient or recepients of the msg
+	private String groupMembers;//tabName or the recepient or recepients of the msg
+	
 	
 	public MessageType getType() {
 		return type;

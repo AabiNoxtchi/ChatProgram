@@ -271,6 +271,7 @@ public class ChatController implements Initializable{
 		 
 		 if(TextFieldType=="TextField")
 		 {
+			 //adding friend name or group members
 			 TextField txtFieldUserName = new TextField();
 			 grid.add(new Text(text), 0, 0);
 			 grid.add(txtFieldUserName, 1, 0);
@@ -280,9 +281,14 @@ public class ChatController implements Initializable{
 			 // Request focus on the txtFieldUserName field by default.
 			 Platform.runLater(() ->  txtFieldUserName.requestFocus());
 			
+			// txtFieldUserName.setOnInputMethodTextChanged(value);
+			// TextField textField = new TextField();
+			 txtFieldUserName.textProperty().addListener((observable, oldValue, newValue) -> {
+			     System.out.println("textfield changed from " + oldValue + " to " + newValue);
+			 });
 			 dialog.setResultConverter(dialogButton -> {
 			     if (dialogButton == addButtonType) {
-			    	 
+			    	 if(txtFieldUserName.getText().isEmpty()) {}			    	 
 			    		 return new String( txtFieldUserName.getText());
 			     }
 			     return null;
@@ -335,15 +341,38 @@ public class ChatController implements Initializable{
 		 return result.isPresent();
 	}
 
-	private String sortFriendName(String userName) {
-		if(userName.contains(",")) {
-			String[] groupMembers=userName.split(",");
-			List<String> names= (List<String>) Arrays.asList(groupMembers);
-			java.util.Collections.sort((java.util.List<String>) names );
-			userName=String.join(",", names);
+//	private String sortFriendName(String userName) {
+//		if(userName.contains(",")) {
+//			String[] groupMembers=userName.split(",");
+//			List<String> names= (List<String>) Arrays.asList(groupMembers);
+//			java.util.Collections.sort((java.util.List<String>) names );
+//			userName=String.join(",", names);
+//		}
+//		return userName;
+//	}
+	
+	private String sortFriendName(String msgRecepient) {
+		
+		int index=msgRecepient.indexOf(currentuser);
+		if(index>-1) {
+			String toReplace="";
+			if(msgRecepient.indexOf(currentuser)==0)
+		         toReplace=currentuser+",";
+			else 
+				 toReplace=","+currentuser;
+			
+			msgRecepient=msgRecepient.replace(toReplace,"");
 		}
-		return userName;
-	}
+	
+	    String[] recepients=msgRecepient.split(",");
+		List<String> names= (List<String>) Arrays.asList(recepients);
+		java.util.Collections.sort((java.util.List<String>) names );
+		String recepient=String.join(",", names);
+		
+		System.out.println("recepient = "+recepient);
+		return recepient;
+}
+
     
 	private void openNewTab(String tabName,Message msg) {
 		Platform.runLater(
@@ -352,7 +381,9 @@ public class ChatController implements Initializable{
 					  User friend=new User();
 					  friend.setUserName(tabName);
 					  if(!checktabNameisFriend(friend)) {
-						  //friend.setStatus(Status.Unknown);
+						  //
+						  //for groups or chat from people who are not friends
+						  //
 						  System.out.println("user "+tabName+" is not in friend list");	
 						  setFriendListItem(friend);
 						  }
@@ -400,8 +431,6 @@ public class ChatController implements Initializable{
 		
 		  });
 	}
-
-	
 
 	private boolean checktabNameisFriend(User friend) {
 		if(friends.contains(friend))return true; 
@@ -475,6 +504,7 @@ public class ChatController implements Initializable{
 		        		while(true)
 				        {
 		        			recieved = (Message)input.readObject();
+		        			System.out.println("recieved msg type : "+recieved.getType());
 						
 							if(recieved.getType()==MessageType.FriendRequest)
 							{
@@ -484,13 +514,16 @@ public class ChatController implements Initializable{
 							else if(recieved.getType()==MessageType.StatusChanged) 
 							{	
 								setContactsListStatusChanged(recieved);
+								System.out.println("recieved status changed "+recieved.getUser().getUserName()+" : "+recieved.getUser().getStatus());
 															
 							}
 							else if(recieved.getType()==MessageType.ChatMessage||recieved.getType()==MessageType.FileTransfer)
 							{								
-								String tabName=recieved.getGroupMembers();								
+								String tabName=sortFriendName(recieved.getGroupMembers());
+								System.out.println("tab name = "+tabName);
 								if(chatTabs.contains(tabName)) 
-								{									
+								{			
+									System.out.println("chat tabs contains tab name : "+tabName);
 									sendChatMsgToTab(tabName,recieved);					
 								}
 								else 

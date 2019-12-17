@@ -19,19 +19,21 @@ public class ClientListner extends Thread{
 	
 	private Socket socket;
 	private ObjectInputStream input;   
-    private ObjectOutputStream output; 
     private Resources resources;
+    private ClientSender clientSender;
+    private HashMap<String,HashSet<String>> friendslist;
     
     private User currentUser;
     
 	
-	public ClientListner(Socket socket,Resources resources) {
+	public ClientListner(Socket socket,Resources resources,ClientSender clientSender) {
 		this.socket=socket;
 		this.resources=resources;
+		this.clientSender=clientSender;
 		
 		try {
 		  input = new ObjectInputStream(socket.getInputStream());        
-          output = new ObjectOutputStream(socket.getOutputStream());
+          //output = new ObjectOutputStream(socket.getOutputStream());
 		}catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -53,14 +55,14 @@ public class ClientListner extends Thread{
 		                           case Register:
 		                            	System.out.println("registering new user");
 		                            	boolean registered= register(msg.getUser());		                            								
-		                            	output.writeObject(registered);
+		                            	clientSender.sendboolean(registered);
 	                                    break;
 		                                
 		                           case LogIn:  
 		                        	   
-	                                    boolean loggedIn= logIn(msg.getUser());		                                   										
-										if(loggedIn) {
-											output.writeObject(loggedIn);
+	                                    boolean loggedIn= logIn(msg.getUser());	
+	                                    clientSender.sendboolean(loggedIn);
+										if(loggedIn) {											
 											setloggedInUser(msg.getUser());										
 										}
 											
@@ -81,11 +83,12 @@ public class ClientListner extends Thread{
 		                        	   forwardChatMsgs(msg);
 		                        	   System.out.println("recieved  msg "+msg.getType());
 		                        	   if(msg.getType()==MessageType.FileTransfer) {
-		                        		   System.out.println("filetransfer.content.length = "+msg.getFileTransfer().getFileContent().length);
 		                        	   }
 		                        	   break;
 		                        	   
-		                           case LogOut:			                        	  
+		                           case LogOut:	
+		                        	   
+		                        	   logOut();
 		                        	   
 		                        	   if(input!=null)
 		       							input.close();
@@ -102,7 +105,7 @@ public class ClientListner extends Thread{
 					} 
                 } catch (ClassNotFoundException | IOException e) {					
 					
-					e.printStackTrace();//??
+					e.printStackTrace();
 					
 				} finally {
 					   
@@ -121,18 +124,24 @@ public class ClientListner extends Thread{
 					}
 				}
              
-          // currentUser.setStatus(Status.OffLine);
-             User user=setEmptyUser();
-			 setcurrentUser(user,Status.OffLine);							
-		     notifyFriendsListUserStatusChanged();	
-			 resources.removeFromOnlineUserMapping(currentUser.getUserName());
-			 System.out.println("notified Friends List User Status Changed ");
+          
+             
 	}
 	
+	private void logOut() {
+		// currentUser.setStatus(Status.OffLine);
+		
+		 setcurrentUser(null,Status.OffLine);
+		 clientSender.interrupt();
+		 resources.removeFromOnlineUserMapping(currentUser.getUserName());
+	     notifyFriendsListUserStatusChanged();			 
+	}
+
 	private void setloggedInUser(User user) {
-		setcurrentUser(user,Status.Online);		
-	    resources.putOnlineUserMapping(currentUser.getUserName(), output);
-		//get online friends status msgs
+		setcurrentUser(user,Status.Online);	
+		clientSender.username=currentUser.getUserName();
+		clientSender.start();
+	    resources.putOnlineUserMapping(currentUser.getUserName(), clientSender);
 		getOnlineFriendsStatus();
 		notifyFriendsListUserStatusChanged();											
 		getOfflineMsgs();
@@ -146,7 +155,7 @@ public class ClientListner extends Thread{
 		System.out.println("checking friends");
 		if(friends != null)
 		{
-			HashMap<String,ObjectOutputStream> onlineUsers=resources.getOnlineUserMapping();
+			HashMap<String,ClientSender> onlineUsers=resources.getOnlineUserMapping();
 			
 		for(String friend : friends){
 			System.out.println(friend);
@@ -154,7 +163,7 @@ public class ClientListner extends Thread{
 				User user=new User();
 				user.setUserName(friend);
 				user.setStatus(Status.Online);
-				Message msg=new Message();
+				Message msg=new Message();//////////////////new msg ////////////new user///status changed
 				msg.setType(MessageType.StatusChanged);
 				msg.setUser(user);
 				notifyOnline(msg,currentUser.getUserName());
@@ -163,20 +172,21 @@ public class ClientListner extends Thread{
 	}
 }
 
-	private User setEmptyUser() {
-		 
-		return null;
-	}
+//	private User setEmptyUser() {
+//		 
+//		return null;
+//	}
 
 	private void setcurrentUser( User user ,Status status ) {
 		if(status==Status.Online) {
 			user.setPassword("");
 			currentUser=user;
 		}else {	
+			//to do
 			 user=new User();
 			 user.setUserName(currentUser.getUserName());
 			 user.setStatus(status);				
-			currentUser=user;
+			 currentUser=user;
 		}
 		
 	}
@@ -184,56 +194,86 @@ public class ClientListner extends Thread{
 	private void forwardChatMsgs(Message msg) {
 		
 		String msgRecepient=msg.getGroupMembers();
-		User user=new User();
-		user.setUserName(currentUser.getUserName());
-		msg.setUser(user);
+		msg.setUser(currentUser);
 		if (msgRecepient.contains(",")) {
 			String[] recepients=msgRecepient.split(",");
-			msgRecepient=currentUser.getUserName()+","+msgRecepient;
 			
+			msgRecepient=currentUser.getUserName()+","+msgRecepient;
+			msg.setGroupMembers(msgRecepient);
 			for(String r:recepients)
 			{	
+				System.out.println("r = "+r);
+				
 				if(! r.equals(currentUser.getUserName())) {	
-				String recepient=sortFriendName(msgRecepient,r);
-				msg.setGroupMembers(recepient);
-				notify(msg,r);	
+					
+//				String recepient=sortFriendName(msgRecepient,r);
+//				
+//				Message msg2 = new Message();////new msg from msg/////////////////////////
+//				msg2.setType(msg.getType());
+//				//setMsgUserCurrentUser(msg2);
+//				msg2.setUser(currentUser);
+//				msg2.setGroupMembers(recepient);
+//				if(msg.getMsg()!=null)msg2.setMsg(msg.getMsg());
+//				else msg2.setFileTransfer(msg.getFileTransfer());
+				
+				notify(msg,r);
 			  }
 			}
 		}else {
+			//setMsgUserCurrentUser(msg);
 			msg.setGroupMembers(currentUser.getUserName());		
 		    notify(msg,msgRecepient);
 		}
 	}
 	
-	private String sortFriendName(String msgRecepient,String r) {
-			
-		    String[] recepients=msgRecepient.split(",");
-			List<String> names= (List<String>) Arrays.asList(recepients);
-			java.util.Collections.sort((java.util.List<String>) names );
-			String recepient=String.join(",", names);
-			String toReplace="";
-			if(recepient.indexOf(r)==0)
-		         toReplace=r+",";
-			else 
-				 toReplace=","+r;
-				
-			recepient=recepient.replace(toReplace,"");
-			return recepient;
-	}
+//	private void setMsgUserCurrentUser(Message msg) {
+//		User user=new User();
+//		user.setUserName(currentUser.getUserName());
+//		msg.setUser(user);
+//		
+//	}
+
+//	private String sortFriendName(String msgRecepient,String r) {
+//			
+//		
+//		String toReplace="";
+//		if(msgRecepient.indexOf(r)==0)
+//	         toReplace=r+",";
+//		else 
+//			 toReplace=","+r;
+//		
+//		msgRecepient=msgRecepient.replace(toReplace,"");
+//		
+//		    String[] recepients=msgRecepient.split(",");
+//			List<String> names= (List<String>) Arrays.asList(recepients);
+//			java.util.Collections.sort((java.util.List<String>) names );
+//			String recepient=String.join(",", names);
+//			
+//			System.out.println("recepient = "+recepient);
+//			
+//			return recepient;
+//		
+//		
+//	}
 	
 	private void addToFriendList(User user,User friend) {
-		if(checkFriendsLists(friend))return;
-		if(resources.getFriendsLists().containsKey(user.getUserName()))
-		{
-			if(! resources.getFriendsLists().get(user.getUserName()).contains(friend.getUserName()))
-				resources.addToFriendsLists(user.getUserName(),friend.getUserName());		
-		}else {
-			HashSet<String> friendList=new HashSet<String>();				
-			friendList.add(friend.getUserName());
-			resources.putInfriendsLists(user.getUserName(),friendList);				
-		}
-		    Message msg=checkFriendStatus(friend);	        
-			notifyOnline(msg,user.getUserName());						
+		
+		if(friendslist==null)friendslist = resources.getFriendsLists();
+		
+	     if(checkFriendsLists(user,friend))return;
+	     else if(friendslist.containsKey(user.getUserName()))
+			{
+				if(! friendslist.get(user.getUserName()).contains(friend.getUserName()))
+					resources.addToFriendsLists(user.getUserName(),friend.getUserName());		
+			}
+	     else {
+				HashSet<String> friendList=new HashSet<String>();				
+				friendList.add(friend.getUserName());
+				resources.putInfriendsLists(user.getUserName(),friendList);				
+			}
+			    Message msg=checkFriendStatus(friend);	
+			    System.out.println("add to friend list .msg.type = "+msg.getType()+" .. friend : "+msg.getUser().getUserName()+" : " +msg.getUser().getStatus() +" .sending to user : "+user.getUserName());
+				notifyOnline(msg,user.getUserName());						
 	}
 
 	private Message checkFriendStatus(User user) {
@@ -246,7 +286,7 @@ public class ClientListner extends Thread{
 		else
 			user.setStatus(Status.OffLine);
 		}
-		Message msg=new Message();
+		Message msg=new Message();/////////////////////////////new msg//////////////////////////////
 		msg.setType(MessageType.StatusChanged);
 		msg.setUser(user);
 		return msg;
@@ -255,8 +295,7 @@ public class ClientListner extends Thread{
 
 	private void notify(Message msg,String userName) {
 		
-			if(!notifyOnline(msg,userName))			
-			 notifyOffline(msg,userName);
+			if(!notifyOnline(msg,userName))	notifyOffline(msg,userName);
 		
 	}
 
@@ -273,39 +312,37 @@ public class ClientListner extends Thread{
 	}
 
 	private boolean notifyOnline(Message msg, String userName) {
-		try {
-			if(userName==currentUser.getUserName()) {
-				output.writeObject(msg);
+		
+			if(userName==currentUser.getUserName()) 
+			{
+				clientSender.addToMsgsList(msg);
+				System.out.println("notifieng "+userName+" msg.type : "+msg.getType());
 			    return true;
 			}
 			else if(resources.getOnlineUserMapping().containsKey(userName))
-			{										
-				resources.getOnlineUserMapping().get(userName).writeObject(msg);//needs change //
+			{	
+				resources.getOnlineUserMapping().get(userName).addToMsgsList(msg);
+				System.out.println("notifieng "+userName+" msg.type : "+msg.getType());
 				return true;
 			}
-		} catch (IOException e) {				
-			e.printStackTrace();
-		}
 		
 		return false;
 	}
 
 	private void sendFriendRequest(User user) {
-		if(checkFriendsLists(user))return;
-		Message msg=new Message();
-		msg.setType(MessageType.FriendRequest);
-		msg.setUser(currentUser);
-		notify(msg,user.getUserName());
+			if(checkFriendsLists(currentUser,user))return;
+			Message msg=new Message();/////////////////////////new msg//////////////////////
+			msg.setType(MessageType.FriendRequest);
+			msg.setUser(currentUser);
+			notify(msg,user.getUserName());
 	}
 	
-	private boolean checkFriendsLists(User friend) {
-		
-		HashMap<String,HashSet<String>> friendslist=resources.getFriendsLists();
-		
-		if(friendslist.containsKey(currentUser.getUserName())) {
-			if(friendslist.get(currentUser.getUserName()).contains(friend.getUserName()))
-				return true;
-		}
+	private boolean checkFriendsLists(User user,User friend) {
+		if(friendslist==null)friendslist = resources.getFriendsLists();
+			
+			if(friendslist.containsKey(user.getUserName())) {
+				if(friendslist.get(user.getUserName()).contains(friend.getUserName())) return true;
+			}
 		return false;
 	}
 
@@ -344,14 +381,7 @@ public class ClientListner extends Thread{
 			LinkedList<Message> msgs=offlineMsgs.get(currentUser.getUserName());
 			for(Message msg:msgs)
 			{
-				try {
-					
-					output.writeObject(msg);
-					
-				} catch (IOException e) {
-					
-					e.printStackTrace();
-				}
+					notifyOnline(msg,currentUser.getUserName());
 			}
 			
 			resources.removeFromOfflineMsgs(currentUser.getUserName());				
@@ -364,7 +394,7 @@ public class ClientListner extends Thread{
 		HashSet<String> friends=friendslist.get(currentUser.getUserName());
 		if(friends!=null) {
 			
-		Message msg=new Message();
+		Message msg=new Message();            //////////////new msg ///////////////////////
 		msg.setType(MessageType.StatusChanged);
 		msg.setUser(currentUser);		
 		

@@ -8,14 +8,11 @@
 <fullyQualifiedTypeName name="java.io.Serializable"/>
 <fullyQualifiedTypeName name="java.awt.TrayIcon.MessageType"/>
 <fullyQualifiedTypeName name="java.io.ObjectInputStream"/>
-<fullyQualifiedTypeName name="java.util.ArrayList"/>
 <fullyQualifiedTypeName name="Views.Register"/>
 <fullyQualifiedTypeName name="Views.UserHome"/>
 <fullyQualifiedTypeName name="Views.LogIn"/>
-<fullyQualifiedTypeName name="Messages.Message"/>
 <fullyQualifiedTypeName name="javafx.fxml.FXMLLoader"/>
 <fullyQualifiedTypeName name="view.ChatBoxController"/>
-<fullyQualifiedTypeName name="Messages.User"/>
 <fullyQualifiedTypeName name="java.util.HashSet"/>
 <fullyQualifiedTypeName name="Server.Server.ClientListner"/>
 <fullyQualifiedTypeName name="Messages.Status"/>
@@ -27,7 +24,6 @@
 <fullyQualifiedTypeName name="java.awt.Label"/>
 <fullyQualifiedTypeName name="javafx.scene.control.Label"/>
 <fullyQualifiedTypeName name="ClientSocket.ClientHome"/>
-<fullyQualifiedTypeName name="java.awt.List"/>
 <fullyQualifiedTypeName name="java.util.Arrays"/>
 <fullyQualifiedTypeName name="java.text.Collator"/>
 <fullyQualifiedTypeName name="java.lang.System"/>
@@ -51,6 +47,14 @@
 <fullyQualifiedTypeName name="javafx.scene.image.Image"/>
 <fullyQualifiedTypeName name="javafx.scene.image.ImageView"/>
 <fullyQualifiedTypeName name="javafx.scene.paint.Color"/>
-<fullyQualifiedTypeName name="Messages.MessageType"/>
 <fullyQualifiedTypeName name="java.nio.file.Path"/>
+<fullyQualifiedTypeName name="java.util.Set"/>
+<fullyQualifiedTypeName name="java.io.ObjectOutputStream"/>
+<fullyQualifiedTypeName name="java.util.List"/>
+<fullyQualifiedTypeName name="Messages.Message"/>
+<fullyQualifiedTypeName name="java.awt.List"/>
+<fullyQualifiedTypeName name="java.util.ArrayList"/>
+<fullyQualifiedTypeName name="java.util.LinkedList"/>
+<fullyQualifiedTypeName name="Messages.User"/>
+<fullyQualifiedTypeName name="Messages.MessageType"/>
 </qualifiedTypeNameHistroy>

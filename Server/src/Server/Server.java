@@ -23,10 +23,11 @@ public class Server {
 			resources.populateAllUsers();
 			
 			while(true) {
-				Socket socket=server.accept();//??
+				Socket socket=server.accept();
 				System.out.println("\nNew Client accepted.\n");
 				
-				new ClientListner(socket,resources).start();
+				ClientSender clientSender=new ClientSender(socket);
+				new ClientListner(socket,resources,clientSender).start();
 				
 			}
 			
