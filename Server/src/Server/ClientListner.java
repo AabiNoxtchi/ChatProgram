@@ -33,7 +33,6 @@ public class ClientListner extends Thread{
 		
 		try {
 		  input = new ObjectInputStream(socket.getInputStream());        
-          //output = new ObjectOutputStream(socket.getOutputStream());
 		}catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -53,12 +52,11 @@ public class ClientListner extends Thread{
 		                     
 		                        switch (msg.getType()) {
 		                           case Register:
-		                            	System.out.println("registering new user");
 		                            	boolean registered= register(msg.getUser());		                            								
 		                            	clientSender.sendboolean(registered);
 	                                    break;
 		                                
-		                           case LogIn:  
+		                           case LogIn: 
 		                        	   
 	                                    boolean loggedIn= logIn(msg.getUser());	
 	                                    clientSender.sendboolean(loggedIn);
@@ -70,7 +68,6 @@ public class ClientListner extends Thread{
 			                            
 		                           case FriendRequest:			                        	 
 		                        	   sendFriendRequest(msg.getUser());
-		                        	   System.out.println("recieved friend request");			                        	  
 		                        	   break;
 		                        	   
 		                           case ApprovedFriendRequest:                       	  
@@ -81,9 +78,6 @@ public class ClientListner extends Thread{
 		                           case ChatMessage:
 		                           case FileTransfer:			                        	  
 		                        	   forwardChatMsgs(msg);
-		                        	   System.out.println("recieved  msg "+msg.getType());
-		                        	   if(msg.getType()==MessageType.FileTransfer) {
-		                        	   }
 		                        	   break;
 		                        	   
 		                           case LogOut:	
@@ -92,8 +86,7 @@ public class ClientListner extends Thread{
 		                        	   
 		                        	   if(input!=null)
 		       							input.close();
-		       							if(socket!=null)
-		       								
+		       							if(socket!=null)		       								
 		       							socket.close();
 		                        	   break;
 		                        	   
@@ -120,25 +113,22 @@ public class ClientListner extends Thread{
 					}catch(IOException e) {
 						System.out.println("couldnt close connections ");
 						e.printStackTrace();
-						System.exit(1);
+						//?? System.exit(1);
 					}
 				}
-             
-          
-             
 	}
 	
 	private void logOut() {
-		// currentUser.setStatus(Status.OffLine);
-		
-		 setcurrentUser(null,Status.OffLine);
+		 currentUser.setStatus(Status.OffLine);
 		 clientSender.interrupt();
 		 resources.removeFromOnlineUserMapping(currentUser.getUserName());
 	     notifyFriendsListUserStatusChanged();			 
 	}
 
 	private void setloggedInUser(User user) {
-		setcurrentUser(user,Status.Online);	
+		user.setStatus(Status.Online);
+		user.setPassword("");
+		currentUser=user;
 		clientSender.username=currentUser.getUserName();
 		clientSender.start();
 	    resources.putOnlineUserMapping(currentUser.getUserName(), clientSender);
@@ -159,7 +149,7 @@ public class ClientListner extends Thread{
 			
 		for(String friend : friends){
 			System.out.println(friend);
-			if(onlineUsers.containsKey(friend)) {//needs change better to send them all in one time ? //
+			if(onlineUsers.containsKey(friend)) {//needs change maybe its better to send them all in one time ? //
 				User user=new User();
 				user.setUserName(friend);
 				user.setStatus(Status.Online);
@@ -172,24 +162,6 @@ public class ClientListner extends Thread{
 	}
 }
 
-//	private User setEmptyUser() {
-//		 
-//		return null;
-//	}
-
-	private void setcurrentUser( User user ,Status status ) {
-		if(status==Status.Online) {
-			user.setPassword("");
-			currentUser=user;
-		}else {	
-			//to do
-			 user=new User();
-			 user.setUserName(currentUser.getUserName());
-			 user.setStatus(status);				
-			 currentUser=user;
-		}
-		
-	}
 
 	private void forwardChatMsgs(Message msg) {
 		
@@ -204,57 +176,18 @@ public class ClientListner extends Thread{
 			{	
 				System.out.println("r = "+r);
 				
-				if(! r.equals(currentUser.getUserName())) {	
+				if(! r.equals(currentUser.getUserName())) {
 					
-//				String recepient=sortFriendName(msgRecepient,r);
-//				
-//				Message msg2 = new Message();////new msg from msg/////////////////////////
-//				msg2.setType(msg.getType());
-//				//setMsgUserCurrentUser(msg2);
-//				msg2.setUser(currentUser);
-//				msg2.setGroupMembers(recepient);
-//				if(msg.getMsg()!=null)msg2.setMsg(msg.getMsg());
-//				else msg2.setFileTransfer(msg.getFileTransfer());
-				
 				notify(msg,r);
+				
 			  }
 			}
 		}else {
-			//setMsgUserCurrentUser(msg);
 			msg.setGroupMembers(currentUser.getUserName());		
 		    notify(msg,msgRecepient);
 		}
 	}
-	
-//	private void setMsgUserCurrentUser(Message msg) {
-//		User user=new User();
-//		user.setUserName(currentUser.getUserName());
-//		msg.setUser(user);
-//		
-//	}
 
-//	private String sortFriendName(String msgRecepient,String r) {
-//			
-//		
-//		String toReplace="";
-//		if(msgRecepient.indexOf(r)==0)
-//	         toReplace=r+",";
-//		else 
-//			 toReplace=","+r;
-//		
-//		msgRecepient=msgRecepient.replace(toReplace,"");
-//		
-//		    String[] recepients=msgRecepient.split(",");
-//			List<String> names= (List<String>) Arrays.asList(recepients);
-//			java.util.Collections.sort((java.util.List<String>) names );
-//			String recepient=String.join(",", names);
-//			
-//			System.out.println("recepient = "+recepient);
-//			
-//			return recepient;
-//		
-//		
-//	}
 	
 	private void addToFriendList(User user,User friend) {
 		
@@ -272,7 +205,6 @@ public class ClientListner extends Thread{
 				resources.putInfriendsLists(user.getUserName(),friendList);				
 			}
 			    Message msg=checkFriendStatus(friend);	
-			    System.out.println("add to friend list .msg.type = "+msg.getType()+" .. friend : "+msg.getUser().getUserName()+" : " +msg.getUser().getStatus() +" .sending to user : "+user.getUserName());
 				notifyOnline(msg,user.getUserName());						
 	}
 
@@ -316,13 +248,11 @@ public class ClientListner extends Thread{
 			if(userName==currentUser.getUserName()) 
 			{
 				clientSender.addToMsgsList(msg);
-				System.out.println("notifieng "+userName+" msg.type : "+msg.getType());
 			    return true;
 			}
 			else if(resources.getOnlineUserMapping().containsKey(userName))
 			{	
 				resources.getOnlineUserMapping().get(userName).addToMsgsList(msg);
-				System.out.println("notifieng "+userName+" msg.type : "+msg.getType());
 				return true;
 			}
 		
@@ -351,8 +281,7 @@ public class ClientListner extends Thread{
 		if(resources.getUsersRegisterLoginHashCodes().containsValue(user.registerLoginhashCode()) && 
 				! resources.getOnlineUserMapping().containsKey(user.getUserName()))
 		{
-			user.setStatus(Status.Online);						
-			System.out.println("User "+user.getUserName()+" Logged in");
+			
 			return true;
 		}	
 		return false;

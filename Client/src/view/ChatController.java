@@ -138,7 +138,7 @@ public class ChatController implements Initializable{
 	@FXML
 	public void chatwithcontact(MouseEvent event) {
 		HBox hbox= contactsListTab.getSelectionModel().getSelectedItem();
-		
+		if(hbox!=null) {
 		ObservableList<javafx.scene.Node> listelements=hbox.getChildren();
 		Text text = (Text)listelements.get(0);
 		String tabName=text.getText();
@@ -151,6 +151,7 @@ public class ChatController implements Initializable{
 		else {
 			tabPane.getSelectionModel().select( index+1); 
 		}
+	  }
 	}
 	
 	private void addToFriends(User friend) {
@@ -504,7 +505,6 @@ public class ChatController implements Initializable{
 		        		while(true)
 				        {
 		        			recieved = (Message)input.readObject();
-		        			System.out.println("recieved msg type : "+recieved.getType());
 						
 							if(recieved.getType()==MessageType.FriendRequest)
 							{
@@ -514,21 +514,20 @@ public class ChatController implements Initializable{
 							else if(recieved.getType()==MessageType.StatusChanged) 
 							{	
 								setContactsListStatusChanged(recieved);
-								System.out.println("recieved status changed "+recieved.getUser().getUserName()+" : "+recieved.getUser().getStatus());
 															
 							}
 							else if(recieved.getType()==MessageType.ChatMessage||recieved.getType()==MessageType.FileTransfer)
 							{								
 								String tabName=sortFriendName(recieved.getGroupMembers());
-								System.out.println("tab name = "+tabName);
 								if(chatTabs.contains(tabName)) 
 								{			
-									System.out.println("chat tabs contains tab name : "+tabName);
 									sendChatMsgToTab(tabName,recieved);					
 								}
 								else 
 								    openNewTab(tabName,recieved);
 							}
+							
+							//recieved=null;
 					  }
 		        	}catch (ClassNotFoundException|IOException e) {
 						//e.printStackTrace();

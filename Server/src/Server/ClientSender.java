@@ -29,28 +29,31 @@ public class ClientSender extends Thread{
 		}
 
 	private synchronized Message getMsg() {
+		Message msg=null;
 			try {
 				
-			     while(msgs.size()<1)wait();			     		     	
+			     while(msgs.size() < 1) wait(); 
+			      msg=msgs.poll();
 			     
 					
 				} catch (InterruptedException e) {					
 					System.out.println("interrupted exception in getMsg clientSender");
 				}
 			
-			Message msg=msgs.poll();
-			//System.out.println("thread "+username+"polled new msg "+msg.getType());
 			return msg;			
 		}
 	
 	private void sendObject(Object obj) {
 		try {
 			
+			//System.out.println("thread "+username+"sending new msg "+msg.getType());
 			output.writeObject(obj);
+			output.reset();			
+			output.flush();
 			
 			
-		} catch (IOException e) {			
-			System.out.println("io exception clientSender ");
+		} catch (IOException | NullPointerException e) {			
+			System.out.println("io exception send obj clientSender ");
 		}
 		
 	}	
@@ -62,7 +65,6 @@ public class ClientSender extends Thread{
 	
 	public synchronized void addToMsgsList(Message msg) {
 		msgs.add(msg);	
-		System.out.println("thread "+username+"recieved new msg "+msg.getType());
 		notify();
 	}
 	
@@ -71,11 +73,8 @@ public class ClientSender extends Thread{
 		while(!isInterrupted()) {
 		
 		Message msg=getMsg();
-		System.out.println("thread "+username+"sending new msg "+msg.getType());
 		sendObject(msg);
 		
 		}
-		
 	}
-	
 }

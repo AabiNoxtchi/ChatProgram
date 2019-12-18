@@ -103,6 +103,7 @@ private static void populateVariables() {
 		output = new ObjectOutputStream(socket.getOutputStream());
 		if(input==null)
 		input=new ObjectInputStream(socket.getInputStream());
+		
 	}catch(IOException e) {
 		System.out.println("Host ID not found !");
 		System.exit(1);
