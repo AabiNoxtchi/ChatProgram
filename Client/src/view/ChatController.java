@@ -3,14 +3,18 @@ package view;
 
 
 import java.util.List;
+import java.util.Map;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Optional;
 import java.util.ResourceBundle;
+
 import ClientSocket.ClientHome;
 import Messages.Message;
 import Messages.MessageType;
@@ -19,12 +23,18 @@ import Messages.User;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Side;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -39,6 +49,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 
 
@@ -69,6 +80,8 @@ public class ChatController implements Initializable{
 	static ArrayList<ChatBoxController> chatboxControllers=new ArrayList<ChatBoxController>();
 	static HashMap<String,Integer> notificationNumbers=new HashMap<String, Integer>();
 	
+	static Map<String,Map<String,Status>> groupMembersStatus=new HashMap<String,Map<String,Status>>();
+	
 	    // fill unhandled friend requests from data base in SetRequestsList //
 		// save new friend requests in AddToFriendRequests
 		// remove from data base in RemoveFromFriendRequests
@@ -80,6 +93,11 @@ public class ChatController implements Initializable{
 	ArrayList<User> friends=new ArrayList<User>();
 	
 	int friendRequestNotificationsNumber=0;
+	
+	//serach users when adding friend
+	private List<User> filteredEntries;   
+    private ContextMenu entriesPopup;
+    private TextField txtFieldUserName;
 	
 	
 	@Override
@@ -104,8 +122,6 @@ public class ChatController implements Initializable{
         }
 	}
 	
-	
-	
 	@FXML
 	public void requestsTabAction(Event event) {
 		 if (requestsTab.isSelected()) {
@@ -120,15 +136,9 @@ public class ChatController implements Initializable{
     @FXML
     public void iconAddNewFriendAction(MouseEvent event) {
    	
-   	    showDialog("","TextField","Add New Friend","User Name :",MessageType.FriendRequest);
+   	    showDialog("","TextField","Add New Friend or a Group"," search User Name :",MessageType.FriendRequest);
 		
 	}		
-	
-	@FXML
-	public void iconCreateGroupAction (MouseEvent event) {
-		showDialog("","TextField","Add New Group \nseperated with comma","Group Members :",null);
-   		
-	}
 		
 	@FXML
 	public void iconLogoutAction (MouseEvent event)  {
@@ -143,9 +153,7 @@ public class ChatController implements Initializable{
 		Text text = (Text)listelements.get(0);
 		String tabName=text.getText();
 		
-		 //tabs index start from 1,,ArrayList index from 0
 		int index=chatTabs.indexOf(tabName);
-		//if(!chatTabs.contains(tabName))
 		if(index==-1)
 		 openNewTab(tabName,null);
 		else {
@@ -177,22 +185,29 @@ public class ChatController implements Initializable{
 	
 	private HBox createNotification(int number,String tabName) {
 		HBox hbox=new HBox();
-		StackPane p = new StackPane();
-        Label label = new Label(""+number);
+		StackPane p=createNotificationCircle(number,Color.RED);
+        tabName=getPaddedString(tabName);
+        Label name=new Label(tabName);        
+        hbox.getChildren().addAll(name,p);
+        
+        return hbox;
+    }
+	
+    private StackPane createNotificationCircle(int number,Color color) {
+    	StackPane p = new StackPane();
+    	
+        Label label = number>=1?new Label(""+number):new Label("");
         label.setStyle("-fx-text-fill:white");
-        Circle circle = new Circle(8, Color.RED);
+        Circle circle = new Circle(8, color);
         circle.setStrokeWidth(2.0);
         circle.setStyle("-fx-background-insets: 0 0 -1 0, 0, 1, 2;");
         circle.setSmooth(true);
         p.getChildren().addAll(circle, label);
         p.setMinWidth(6);
-        tabName=getPaddedString(tabName);
-        Label name=new Label(tabName);        
-        hbox.getChildren().addAll(name,p);
-        return hbox;
-    }
-	
-    private void setRequestsList() {
+        return p;
+	}
+
+	private void setRequestsList() {
     	
     	//friendrequestsList = if theres any requests in data base
 		 requestsListview.setItems(friendrequestsList);		
@@ -203,19 +218,19 @@ public class ChatController implements Initializable{
 		// friends = fill contactsList from data base here // 
 		
 		for(User friend : friends) {
-			 setFriendListItem(friend);
+			 setFriendListItem(friend,MessageType.ApprovedFriendRequest);
 		}
 		
 		contactsListTab.setItems(contactsList);
 			
 	}
 	    
-	private void setFriendListItem(User friend) {
+	private void setFriendListItem(User friend,MessageType type) {
 		
 		boolean done = false;
 		HBox hbox=null;
 		Text name=null;
-		Circle status=null;
+		StackPane status=null;
 		
 		for (int i = 0; i < contactsList.size(); i++)
 	    {
@@ -223,37 +238,87 @@ public class ChatController implements Initializable{
 			ObservableList<javafx.scene.Node> listelements=hbox.getChildren();
 			name = (Text)listelements.get(0);
 			
-			 if (name.getText().equals(friend.getUserName())) 
+			String nameText=name.getText();
+			if(nameText.contains(","))
+			{
+				if(nameText==friend.getUserName()) {done=true;}
+				String[] names=nameText.split(",");
+				for(String r:names)
+				{
+					if (r.equals(friend.getUserName())) 
+			        {
+			        	status = (StackPane)listelements.get(1);
+			        	boolean isChecked = groupMembersStatus.get(nameText).get(r) == friend.getStatus();
+			        	
+			        	if(type==MessageType.StatusChanged && !isChecked) setColors(status,friend.getStatus(),name);
+			        	if(!isChecked && friend.getStatus()!=null) {groupMembersStatus.get(nameText).put(r, friend.getStatus());}
+			        }
+				}
+			}
+			else if (nameText.equals(friend.getUserName())) 
 	        {
-	        	status = (Circle)listelements.get(1);
+	        	status = (StackPane)listelements.get(1);
 	        	done=true;
-	        	break;
+	        	if(type==MessageType.StatusChanged) setColors(status,friend.getStatus(),name);
+	        	
 	        }
 	    }
-		if(!done) {
+		
+		if(!done && type==MessageType.ApprovedFriendRequest) {
 			 hbox=new HBox();
 			 name=new Text(friend.getUserName());
 			 name.setWrappingWidth(140);
-	         status=new Circle();
-	         status.setRadius(8.0f); 
-	         hbox.getChildren().addAll(name,status);
+			 status=createNotificationCircle(0,Color.LIGHTGRAY);
+			 
+			 if(friend.getUserName().contains(",")) {
+				 String[] members=friend.getUserName().split(",");
+				 Map<String,Status> membersStatus=new HashMap<String,Status>();
+				 for(String member:members) {
+					 
+					 membersStatus.put(member, Status.OffLine);}
+				     groupMembersStatus.put(friend.getUserName(), membersStatus);
+			 }
+			 
+	         hbox.getChildren().addAll(name,status);				
+			 contactsList.add(hbox);
 		}
+	}
+
+	private void setColors(StackPane status, Status friendStatus, Text name) {
+		        if(name.getText().contains(",")) { 
+					
+					int number= ((Label)status.getChildren().get(1)).getText().isEmpty()?0:Integer.parseInt(((Label)status.getChildren().get(1)).getText());
+					if(friendStatus==Status.Online) { 
+						number+=1;
+						((Shape) status.getChildren().get(0)).setFill(Color.GREENYELLOW);
+						String label = number >= 1 ? ""+number : "";
+						((Label) status.getChildren().get(1)).setText(label);
+						
+						}	       
+			         else {
+			        	 
+			        	 number-=1;
+							if(number >0)((Shape) status.getChildren().get(0)).setFill(Color.GREENYELLOW);
+							else ((Shape) status.getChildren().get(0)).setFill(Color.LIGHTGRAY);
+							String label = number >= 1 ? ""+number : "";
+							((Label) status.getChildren().get(1)).setText(label);
+			        	 
+			         }
+				} 					
+				else {
+					
+			         if(friendStatus==Status.Online) { ((Shape) status.getChildren().get(0)).setFill(Color.GREENYELLOW);	 }          
+			         else ((Shape) status.getChildren().get(0)).setFill(Color.LIGHTGRAY);
+		         
+				}
 		
-         if(friend.getStatus()==Status.Online) {status.setFill(Color.GREENYELLOW);}
-         else if(friend.getUserName().contains(",")) { status.setFill(Color.BLANCHEDALMOND); }
-         else status.setFill(Color.LIGHTGRAY);
-         if(!done)
-         contactsList.add(hbox);
-         
 	}
 
 	@FXML
 	private void approveFriendRequests(MouseEvent event) {
 		 String friendName=requestsListview.getSelectionModel().getSelectedItem().toString();
-    	 if(showDialog(friendName,"Text","Accept Friend Request","Friend request from : ",MessageType.ApprovedFriendRequest))
-    	 {
-    		 removeFromFriendRequests(friendName);
-    	 }
+    	 showDialog(friendName,"Text","Accept Friend Request","Friend request from : ",MessageType.ApprovedFriendRequest);
+    	
 	}
 
 	private boolean showDialog(String name,String TextFieldType,String title,String text,MessageType msgType) {
@@ -261,8 +326,7 @@ public class ChatController implements Initializable{
 		 Dialog<String> dialog = new Dialog<>();
 		 dialog.setTitle(title);
 		
-		 ButtonType addButtonType = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
-		 dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
+		
 		
 		 GridPane grid = new GridPane();
 		 grid.setHgap(10);
@@ -273,24 +337,76 @@ public class ChatController implements Initializable{
 		 if(TextFieldType=="TextField")
 		 {
 			 //adding friend name or group members
-			 TextField txtFieldUserName = new TextField();
-			 grid.add(new Text(text), 0, 0);
+			 txtFieldUserName = new TextField();
+			 grid.add(new Text(text), 0, 0);			
 			 grid.add(txtFieldUserName, 1, 0);
+			 Button btn=new Button("add");
+			 grid.add(btn, 2, 0);
+			 
+			 Text friendsToAdd = new Text("friend/Group Name ");
+			 grid.add(friendsToAdd, 0, 1);
+			 Text friends = new Text("");
+			 grid.add(friends, 1, 1);
+			 
+			 
+			 ButtonType addButtonType = new ButtonType("Send friend request", ButtonBar.ButtonData.OK_DONE);		 
+			 dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
 			   
 			 dialog.getDialogPane().setContent(grid);
-			
-			 // Request focus on the txtFieldUserName field by default.
 			 Platform.runLater(() ->  txtFieldUserName.requestFocus());
 			
-			// txtFieldUserName.setOnInputMethodTextChanged(value);
-			// TextField textField = new TextField();
+			 btn.setOnAction(new EventHandler<ActionEvent>() {
+				    @Override public void handle(ActionEvent e) {
+				        if(!txtFieldUserName.getText().isEmpty()) {
+				        	 boolean valid=false;
+					    	 for(User user: filteredEntries)
+					    	 {
+					    		 if(user.getUserName().equals(txtFieldUserName.getText())) valid=true;
+					    				 
+					    	 }
+					    	 
+					    	 if(valid) {
+					    		 if(!friends.getText().isEmpty()) {
+					    			 if(!friends.getText().contains(","))
+					    			 {
+					    				 if(!friends.getText().equals(txtFieldUserName.getText()))
+					    					 friends.setText(friends.getText()+","+txtFieldUserName.getText());
+					    			 }else {
+					    				 String[] friendsArr=friends.getText().split(",");
+					    				 boolean exists=false;
+					    				 for(String r:friendsArr) {
+					    					 if(r.equals(txtFieldUserName.getText()))exists=true;
+					    				 }
+					    				 if(!exists)friends.setText(friends.getText()+","+txtFieldUserName.getText());
+					    			 }
+					    		 }else {
+					    			 friends.setText(txtFieldUserName.getText());
+					    		 }
+					    	 } 
+				        }
+				        
+				        txtFieldUserName.setText("");
+				    }
+				});
+			 
 			 txtFieldUserName.textProperty().addListener((observable, oldValue, newValue) -> {
-			     System.out.println("textfield changed from " + oldValue + " to " + newValue);
+			     
+			     if (newValue == null || newValue.isEmpty() || newValue.trim().isEmpty()) {
+		                entriesPopup.hide();
+		            } else {
+		            	
+		            	Message msg=new Message();
+		            	msg.setType(MessageType.SearchUsers);
+		            	msg.setUsersSearchString(newValue);
+		            	ClientHome.sendMsgs(msg);
+		                
+		            }
 			 });
 			 dialog.setResultConverter(dialogButton -> {
 			     if (dialogButton == addButtonType) {
-			    	 if(txtFieldUserName.getText().isEmpty()) {}			    	 
-			    		 return new String( txtFieldUserName.getText());
+			    	 if(friends.getText().isEmpty()) {}
+			    	 else return new String( friends.getText()); 
+			    		 
 			     }
 			     return null;
 			 });
@@ -301,10 +417,12 @@ public class ChatController implements Initializable{
 		     txtFieldUserName.setText(name);
 		     grid.add(new Text(text), 0, 0);
 			 grid.add(txtFieldUserName, 1, 0);
+			 
+			 ButtonType addButtonType = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
+			 ButtonType declineButtonType = new ButtonType("Decline", ButtonBar.ButtonData.NO);
+			 dialog.getDialogPane().getButtonTypes().addAll(addButtonType,declineButtonType, ButtonType.CANCEL);
 			   
 			 dialog.getDialogPane().setContent(grid);
-			
-			 // Request focus on the txtFieldUserName field by default.
 			 Platform.runLater(() ->  txtFieldUserName.requestFocus());
 			
 			 dialog.setResultConverter(dialogButton -> {
@@ -312,6 +430,9 @@ public class ChatController implements Initializable{
 			    	
 						 return new String (txtFieldUserName.getText());
 			        
+			     }else if(dialogButton == declineButtonType) {
+			    	 
+			    	     return new String ("declined"+name);
 			     }
 			     return null;
 			 });
@@ -321,73 +442,92 @@ public class ChatController implements Initializable{
 		 Optional<String> result = dialog.showAndWait();
 			 
 		 result.ifPresent(userName->{
+			 
+			 if(userName.startsWith("declined")) {
+				 User friend=new User();
+				 friend.setUserName(userName.replace("declined", ""));
+				 Message msg=new Message();
+				 msg.setType(MessageType.DeclinedFriendRequest);		 
+				 msg.setUser(friend);
+				 ClientHome.sendMsgs(msg);
+			 }
+			 else {
 			 userName=sortFriendName(userName);
 			 User friend=new User();
 			 friend.setUserName(userName);
 			 
-			 if(!friends.contains(friend))
+			 for(User user:friends) {System.out.print(user.getUserName()+" , ");}
+			 if(!friends.contains(friend))///??????
 			 {
-					 if(msgType!=null) {
-				 
 						 Message msg=new Message();
 						 msg.setType(msgType);		 
 						 msg.setUser(friend);
 						 ClientHome.sendMsgs(msg);
-					 }
-				 addToFriends(friend);				
-				 setFriendListItem(friend);
+					
+				 if(msgType==MessageType.ApprovedFriendRequest)removeFromFriendRequests(userName);
+				 addToFriends(friend);	
+				 setFriendListItem(friend,MessageType.ApprovedFriendRequest);
 			 }
+			}
 		 });
 		 
 		 return result.isPresent();
 	}
+		 
+    private void populatePopup(List<User> searchResult) {
+			 
+			 if(entriesPopup !=null && entriesPopup.isShowing())entriesPopup.hide();
+			 this.entriesPopup = new ContextMenu();
+		        List<CustomMenuItem> menuItems = new LinkedList<>();
+		        int count=searchResult.size();
+		        for (int i = 0; i < count; i++) {
+		          final String result = searchResult.get(i).getUserName();
+		          Label entryLabel = new Label();
+		          entryLabel.setText(result);
+		          entryLabel.setPrefWidth(100);
+		          CustomMenuItem item = new CustomMenuItem(entryLabel, true);
+		          menuItems.add(item);
 
-//	private String sortFriendName(String userName) {
-//		if(userName.contains(",")) {
-//			String[] groupMembers=userName.split(",");
-//			List<String> names= (List<String>) Arrays.asList(groupMembers);
-//			java.util.Collections.sort((java.util.List<String>) names );
-//			userName=String.join(",", names);
-//		}
-//		return userName;
-//	}
+		          item.setOnAction(actionEvent -> {
+		        	  txtFieldUserName.setText(result);
+		              entriesPopup.hide();
+		          });
+		        }
+		        
+		        entriesPopup.getItems().clear();
+		        entriesPopup.getItems().addAll(menuItems);
+		   }
 	
 	private String sortFriendName(String msgRecepient) {
 		
 		int index=msgRecepient.indexOf(currentuser);
+				
 		if(index>-1) {
-			String toReplace="";
-			if(msgRecepient.indexOf(currentuser)==0)
-		         toReplace=currentuser+",";
-			else 
-				 toReplace=","+currentuser;
+			if(index==0 && msgRecepient.indexOf(",")==currentuser.length()) {
+				
+				msgRecepient=msgRecepient.substring(currentuser.length()+1);
+			}
+			else if(index>0)
+				{
+				
+				if(index+currentuser.length()==msgRecepient.length())msgRecepient=msgRecepient.substring(0, index);
+				else {
+					msgRecepient=msgRecepient.substring(0,index)+msgRecepient.substring(index+currentuser.length()+1);
+				}
+			}
 			
-			msgRecepient=msgRecepient.replace(toReplace,"");
 		}
-	
+		
 	    String[] recepients=msgRecepient.split(",");
 		List<String> names= (List<String>) Arrays.asList(recepients);
 		java.util.Collections.sort((java.util.List<String>) names );
 		String recepient=String.join(",", names);
-		
-		System.out.println("recepient = "+recepient);
 		return recepient;
 }
-
     
 	private void openNewTab(String tabName,Message msg) {
 		Platform.runLater(
 				  () -> {
-					  
-					  User friend=new User();
-					  friend.setUserName(tabName);
-					  if(!checktabNameisFriend(friend)) {
-						  //
-						  //for groups or chat from people who are not friends
-						  //
-						  System.out.println("user "+tabName+" is not in friend list");	
-						  setFriendListItem(friend);
-						  }
 					  
 			ChatBoxController controller=null;
 			String paddedTabName=getPaddedString(tabName);
@@ -403,9 +543,7 @@ public class ChatController implements Initializable{
 			e.printStackTrace();
 		}
 		 
-		 //tabs size start from 1,,ArrayList index from 0
 		 int index= tabPane.getTabs().size();
-		 System.out.println("index = "+index);
 		 tabPane.getTabs().add(index, newtab); 		 
 		 chatTabs.add(index-1, tabName);
 		 chatboxControllers.add(index-1,controller);
@@ -431,11 +569,6 @@ public class ChatController implements Initializable{
 		    });
 		
 		  });
-	}
-
-	private boolean checktabNameisFriend(User friend) {
-		if(friends.contains(friend))return true; 
-		return false;
 	}
 
 	private void sendChatMsgToTab(String tabName,Message recieved) {
@@ -475,11 +608,13 @@ public class ChatController implements Initializable{
 	private void addFriendRequest(Message recieved) {
 		Platform.runLater(
 				  () -> {
-					  addToFriendRequests(recieved.getUser().getUserName());
+					 
+					  String friendName=sortFriendName(recieved.getUser().getUserName());
+					  addToFriendRequests(friendName);
 		
 		
 		if(!requestsTab.isSelected()) {
-			
+		    friendRequestNotificationsNumber++;
 			HBox icon =   createNotification(friendRequestNotificationsNumber,requestsTab.getText());
 			requestsTab.setText("");
 			requestsTab.setGraphic(icon);
@@ -491,11 +626,28 @@ public class ChatController implements Initializable{
 	private void setContactsListStatusChanged(Message recieved) {
 		Platform.runLater(
 				  () -> {
-					  setFriendListItem(recieved.getUser());
+					  setFriendListItem(recieved.getUser(),MessageType.StatusChanged);
 					  
 				  });
 	}
-		    
+	
+	private void populateUserSearchOptions(Message recieved) {
+		
+		Platform.runLater(
+				  () -> {
+					  
+        filteredEntries = recieved.getSearchUsers();
+        if (!filteredEntries.isEmpty()) {
+            populatePopup(filteredEntries);
+            if (!entriesPopup.isShowing()) { 
+                entriesPopup.show(txtFieldUserName, Side.BOTTOM, 0, 0); 
+            }
+        } else {
+            entriesPopup.hide();
+        }
+				  });
+	}
+	
 	private class Reciever extends Thread{
 		
 		     public void run()
@@ -508,7 +660,6 @@ public class ChatController implements Initializable{
 						
 							if(recieved.getType()==MessageType.FriendRequest)
 							{
-								    friendRequestNotificationsNumber++;
 								    addFriendRequest(recieved);									
 							}
 							else if(recieved.getType()==MessageType.StatusChanged) 
@@ -526,11 +677,14 @@ public class ChatController implements Initializable{
 								else 
 								    openNewTab(tabName,recieved);
 							}
+							else if(recieved.getType()==MessageType.SearchUsers)
+							{
+								populateUserSearchOptions(recieved);
+							}
 							
-							//recieved=null;
 					  }
 		        	}catch (ClassNotFoundException|IOException e) {
-						//e.printStackTrace();
+						e.printStackTrace();
 		        		System.out.println("connection got exception ..");	
 					}
 		   }

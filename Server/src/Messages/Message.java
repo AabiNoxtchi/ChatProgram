@@ -1,6 +1,7 @@
 package Messages;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class Message implements Serializable{
 /**
@@ -8,6 +9,9 @@ public class Message implements Serializable{
 	 */
 	private static final long serialVersionUID = 6218223176771690605L;
 	
+	private ArrayList<User> searchUsers;
+	
+	private String usersSearchString;
 
     private MessageType type;
     
@@ -60,6 +64,23 @@ public class Message implements Serializable{
 		this.fileTransfer = fileTransfer;
 	}
 
+	public ArrayList<User> getSearchUsers() {
+		return searchUsers;
+	}
+
+	public void setSearchUsers(ArrayList<User> searchUsers) {
+		this.searchUsers = searchUsers;
+	}
+
+	public String getUsersSearchString() {
+		return usersSearchString;
+	}
+
+	public void setUsersSearchString(String usersSearchString) {
+		this.usersSearchString = usersSearchString;
+	}
+
+	
 	
 
 }

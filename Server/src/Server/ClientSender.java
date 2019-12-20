@@ -45,17 +45,13 @@ public class ClientSender extends Thread{
 	
 	private void sendObject(Object obj) {
 		try {
-			
-			//System.out.println("thread "+username+"sending new msg "+msg.getType());
 			output.writeObject(obj);
 			output.reset();			
 			output.flush();
 			
-			
 		} catch (IOException | NullPointerException e) {			
 			System.out.println("io exception send obj clientSender ");
 		}
-		
 	}	
 	
 	

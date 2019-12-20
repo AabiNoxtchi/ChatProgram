@@ -54,14 +54,14 @@
                         <Insets right="15.0" />
                      </HBox.margin>
                   </ImageView>
-                  <ImageView  fitHeight="39.0" fitWidth="43.0" onMouseClicked="#iconCreateGroupAction" pickOnBounds="true" preserveRatio="true">
+                  <!-- <ImageView  fitHeight="39.0" fitWidth="43.0" onMouseClicked="#iconCreateGroupAction" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@/resources/group-registration.png" />
                      </image>
                      <HBox.margin>
                         <Insets right="15.0" />
                      </HBox.margin>
-                  </ImageView>
+                  </ImageView> -->
                   <ImageView  fitHeight="29.0" fitWidth="28.0" onMouseClicked="#iconLogoutAction" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@/resources/logout-icon-transparent-18.jpg" />

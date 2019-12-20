@@ -42,7 +42,7 @@ public class User implements Serializable{
 			return false;
 		User user=(User)o;
 		return
-				getUserName().equals(user.getUserName())&& getStatus()!=null?getStatus().equals(user.getStatus()):true;
+				getUserName().equals(user.getUserName());//&& getStatus()!=null?getStatus().equals(user.getStatus()):true;
 				
 	}
 	

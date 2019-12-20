@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -116,7 +115,7 @@ public class ChatBoxController implements Initializable {//load history in initi
         	 fileHBox.setStyle(style);
         	 cell.getChildren().addAll(sendLabel,fileHBox);
         	 
-        	 //the listner for file containing items //
+        	 //the listner for chat list view containing file //
         	 fileHBox.setOnMouseClicked(event->{
         		 
         		 if(fileTransfer.getAbsolutePath()!=null) {
@@ -134,9 +133,6 @@ public class ChatBoxController implements Initializable {//load history in initi
         			    File selectedFile = chooser.showSaveDialog(null);
         			    if(selectedFile!=null) {
         			    //not sure whether to bother to check if user changed name cause the path is what matters
-        			    System.out.println("selectedFile.getAbsolutePath() = "+selectedFile.getAbsolutePath()+ "\n"
-        			    		+ "selectedFile.toPath() = "+selectedFile.toPath()+"\n"
-        			    		+ "fileTransfer.getFileContent().length = "+fileTransfer.getFileContent().length);
         			    try {
         			    	
         			    	fileTransfer.setAbsolutePath(selectedFile.getAbsolutePath());        			    	
@@ -144,9 +140,8 @@ public class ChatBoxController implements Initializable {//load history in initi
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
-        			    }
+        		     }
         		 }
-        		 
         	 });
          }
     	 
@@ -190,7 +185,6 @@ public class ChatBoxController implements Initializable {//load history in initi
                 
                 setMsginBox("","", fileTransfer);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
          }

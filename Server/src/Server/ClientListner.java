@@ -2,13 +2,14 @@ package Server;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import Messages.Message;
 import Messages.MessageType;
@@ -47,6 +48,7 @@ public class ClientListner extends Thread{
                 while (!socket.isClosed()) {
                 	
                 	msg = (Message)input.readObject();
+                	
 						
 						if (msg != null) {
 		                     
@@ -66,13 +68,22 @@ public class ClientListner extends Thread{
 											
 			                            break;
 			                            
-		                           case FriendRequest:			                        	 
+		                           case SearchUsers :
+		                        	   
+		                        	   searchUsers(msg);
+		                        	   break;
+			                            
+		                           case FriendRequest:	
 		                        	   sendFriendRequest(msg.getUser());
+		                        	   addToFriendList(currentUser,msg.getUser());
 		                        	   break;
 		                        	   
-		                           case ApprovedFriendRequest:                       	  
+		                           case ApprovedFriendRequest: 
 		                        	   addToFriendList(currentUser,msg.getUser());
-		                        	   addToFriendList(msg.getUser(),currentUser);
+		                        	   break;
+		                        	   
+		                           case DeclinedFriendRequest: 
+		                        	   addToDeclinedFriendList(currentUser,msg.getUser());
 		                        	   break;
 		                        	   
 		                           case ChatMessage:
@@ -98,7 +109,7 @@ public class ClientListner extends Thread{
 					} 
                 } catch (ClassNotFoundException | IOException e) {					
 					
-					e.printStackTrace();
+                	System.out.println("some exception in client Listner  "+currentUser.getUserName());
 					
 				} finally {
 					   
@@ -113,16 +124,52 @@ public class ClientListner extends Thread{
 					}catch(IOException e) {
 						System.out.println("couldnt close connections ");
 						e.printStackTrace();
-						//?? System.exit(1);
 					}
 				}
 	}
 	
+	private void searchUsers(Message msg) {
+		String usersSearchString = msg.getUsersSearchString();
+		ArrayList<User> filteredUsers = resources.getUsers(e->e.getUserName().toLowerCase().startsWith(usersSearchString.toLowerCase()));
+		msg.setSearchUsers(filteredUsers);
+		notifyOnline(msg, currentUser.getUserName());
+	}
+
+	private void addToDeclinedFriendList(User user, User friend) {
+		
+	       if(!user.getUserName().contains(",")) {
+				
+				String recepients=friend.getUserName();
+				if (recepients.contains(",")) {
+					if(!recepients.contains(currentUser.getUserName()))recepients=currentUser.getUserName()+","+recepients;
+					    String[] recepientsArr=recepients.split(",");
+						List<String> names= (List<String>) Arrays.asList(recepientsArr);
+						java.util.Collections.sort((java.util.List<String>) names );
+						recepients=String.join(",", names);
+					    friend.setUserName(recepients);
+				}
+	       }
+					
+			Map<String,HashSet<String>> declinedfriendsList = resources.getDeclinedfriendsLists();
+		     
+		     if(declinedfriendsList.containsKey(user.getUserName()))
+				{
+					if(! declinedfriendsList.get(user.getUserName()).contains(friend.getUserName()))
+						resources.addToDeclinedFriendsLists(user.getUserName(),friend.getUserName());
+				}
+		     else {
+					HashSet<String> declinedfriendList=new HashSet<String>();				
+					declinedfriendList.add(friend.getUserName());
+					resources.putInDeclinedFriendsLists(user.getUserName(),declinedfriendList);
+				}
+	}
+
 	private void logOut() {
+		 System.out.println("user "+currentUser.getUserName()+" logging out");
 		 currentUser.setStatus(Status.OffLine);
+		 notifyFriendsListUserStatusChanged();
 		 clientSender.interrupt();
 		 resources.removeFromOnlineUserMapping(currentUser.getUserName());
-	     notifyFriendsListUserStatusChanged();			 
 	}
 
 	private void setloggedInUser(User user) {
@@ -142,26 +189,59 @@ public class ClientListner extends Thread{
 		
 		HashSet<String> friends=resources.getFriendsLists().get(currentUser.getUserName());
 		
-		System.out.println("checking friends");
 		if(friends != null)
 		{
 			HashMap<String,ClientSender> onlineUsers=resources.getOnlineUserMapping();
 			
 		for(String friend : friends){
-			System.out.println(friend);
-			if(onlineUsers.containsKey(friend)) {//needs change maybe its better to send them all in one time ? //
-				User user=new User();
-				user.setUserName(friend);
-				user.setStatus(Status.Online);
-				Message msg=new Message();//////////////////new msg ////////////new user///status changed
-				msg.setType(MessageType.StatusChanged);
-				msg.setUser(user);
-				notifyOnline(msg,currentUser.getUserName());
+			if (friend.contains(",")) {
+					String[] recepients=friend.split(",");
+					
+					friend=currentUser.getUserName()+","+friend;
+					
+					String[] recepientsArr=friend.split(",");
+					List<String> names= (List<String>) Arrays.asList(recepientsArr);
+					java.util.Collections.sort((java.util.List<String>) names );
+				    friend=String.join(",", names);
+						
+					for(String r:recepients)
+					{	
+						if(! r.equals(currentUser.getUserName())) {
+							
+							if(resources.getDeclinedfriendsLists().get(r)==null ||
+									(!resources.getDeclinedfriendsLists().get(r).contains(friend)))
+							{
+								if(onlineUsers.containsKey(r)) {//needs change maybe its better to send them all in one time ? //
+									User user=new User();
+									user.setUserName(r);
+									user.setStatus(Status.Online);
+									Message msg=new Message();//////////////////new msg ////////////new user///status changed
+									msg.setType(MessageType.StatusChanged);
+									msg.setUser(user);
+									notifyOnline(msg,currentUser.getUserName());
+								}
+							}
+					  }
+					}
+			}else
+			{
+				if( resources.getDeclinedfriendsLists().get(friend) == null ||
+						(!resources.getDeclinedfriendsLists().get(friend).contains(currentUser.getUserName())))
+				{
+					if(onlineUsers.containsKey(friend)) {//needs change maybe its better to send them all in one time ? //
+						User user=new User();
+						user.setUserName(friend);
+						user.setStatus(Status.Online);
+						Message msg=new Message();//////////////////new msg ////////////new user///status changed
+						msg.setType(MessageType.StatusChanged);
+						msg.setUser(user);
+						notifyOnline(msg,currentUser.getUserName());
+					}
+				}
 			}
 		}
 	}
 }
-
 
 	private void forwardChatMsgs(Message msg) {
 		
@@ -169,43 +249,96 @@ public class ClientListner extends Thread{
 		msg.setUser(currentUser);
 		if (msgRecepient.contains(",")) {
 			String[] recepients=msgRecepient.split(",");
-			
 			msgRecepient=currentUser.getUserName()+","+msgRecepient;
+			
+			String[] recepientsArr=msgRecepient.split(",");
+			List<String> names= (List<String>) Arrays.asList(recepientsArr);
+			java.util.Collections.sort((java.util.List<String>) names );
+			String recepient=String.join(",", names);
+			
 			msg.setGroupMembers(msgRecepient);
 			for(String r:recepients)
 			{	
-				System.out.println("r = "+r);
-				
 				if(! r.equals(currentUser.getUserName())) {
-					
-				notify(msg,r);
-				
+					if(resources.getDeclinedfriendsLists().get(r)==null ||
+							(!resources.getDeclinedfriendsLists().get(r).contains(recepient)))
+					{
+				       notify(msg,r);
+					}
 			  }
 			}
 		}else {
+			if( resources.getDeclinedfriendsLists().get(msgRecepient) == null ||
+					(!resources.getDeclinedfriendsLists().get(msgRecepient).contains(currentUser.getUserName())))
+			{
 			msg.setGroupMembers(currentUser.getUserName());		
 		    notify(msg,msgRecepient);
+			}
 		}
 	}
-
 	
 	private void addToFriendList(User user,User friend) {
 		
-		if(friendslist==null)friendslist = resources.getFriendsLists();
-		
-	     if(checkFriendsLists(user,friend))return;
+		if(!user.getUserName().contains(",")) {
+			
+			String recepients=friend.getUserName();
+			if (recepients.contains(",")) {
+				int index=recepients.indexOf(currentUser.getUserName());
+				boolean exists=false;
+				if(index>-1) {
+					if(index==0 && recepients.indexOf(",")==currentUser.getUserName().length())exists=true;
+					else if(index>0) {
+						if(index+currentUser.getUserName().length()==recepients.length())exists=true;
+						else if(recepients.charAt(index-1) == ',' && recepients.charAt(index+currentUser.getUserName().length()) == ',')exists=true;
+					}
+				}
+				if(!exists)recepients=currentUser.getUserName()+","+recepients;
+				    String[] recepientsArr=recepients.split(",");
+					List<String> names= (List<String>) Arrays.asList(recepientsArr);
+					java.util.Collections.sort((java.util.List<String>) names );
+					recepients=String.join(",", names);
+				    friend.setUserName(recepients);
+			}
+				
+		 if(friendslist==null)friendslist = resources.getFriendsLists();
+	     if(checkFriendsLists(user,friend))return;    
 	     else if(friendslist.containsKey(user.getUserName()))
 			{
 				if(! friendslist.get(user.getUserName()).contains(friend.getUserName()))
-					resources.addToFriendsLists(user.getUserName(),friend.getUserName());		
+					resources.addToFriendsLists(user.getUserName(),friend.getUserName());
 			}
 	     else {
 				HashSet<String> friendList=new HashSet<String>();				
 				friendList.add(friend.getUserName());
-				resources.putInfriendsLists(user.getUserName(),friendList);				
+				resources.putInfriendsLists(user.getUserName(),friendList);	
 			}
-			    Message msg=checkFriendStatus(friend);	
-				notifyOnline(msg,user.getUserName());						
+		}
+		     String friendName=friend.getUserName();
+		     if (friendName.contains(",")) {
+					String[] recepientsArr=friendName.split(",");
+					for(String r:recepientsArr)
+					{	
+						if(! r.equals(currentUser.getUserName())) {
+							User newFriend=new User();							
+							newFriend.setUserName(r);
+							if(!isFriendDeclined(newFriend,friend) && checkFriendsLists(newFriend,friend)) { //if r has current user as friend and he's not blocked
+							Message msg=checkFriendStatus(user);
+							notifyOnline(msg,r);
+							Message msg2=checkFriendStatus(newFriend);
+							notifyOnline(msg2,user.getUserName());
+							
+							}
+					  }
+					}
+		         }
+		     else {
+		    	 if(!isFriendDeclined(friend,user) && checkFriendsLists(friend,user)) {
+				    Message msg=checkFriendStatus(user);
+					notifyOnline(msg,friend.getUserName());	
+					Message msg2=checkFriendStatus(friend);	
+					notifyOnline(msg2,user.getUserName());	
+		    	 }
+		     }
 	}
 
 	private Message checkFriendStatus(User user) {
@@ -260,11 +393,29 @@ public class ClientListner extends Thread{
 	}
 
 	private void sendFriendRequest(User user) {
+		
+		
 			if(checkFriendsLists(currentUser,user))return;
 			Message msg=new Message();/////////////////////////new msg//////////////////////
 			msg.setType(MessageType.FriendRequest);
-			msg.setUser(currentUser);
-			notify(msg,user.getUserName());
+			
+			String recepients=user.getUserName();
+			if (recepients.contains(",")) {
+				String[] recepientsArr=recepients.split(",");
+				
+				recepients=currentUser.getUserName()+","+recepients;
+				user.setUserName(recepients);
+				msg.setUser(user);
+				for(String r:recepientsArr)
+				{	
+					if(! r.equals(currentUser.getUserName())) {
+					    notify(msg,r);
+				  }
+				}
+			}else {
+					msg.setUser(currentUser);
+					notify(msg,user.getUserName());
+				}
 	}
 	
 	private boolean checkFriendsLists(User user,User friend) {
@@ -272,6 +423,15 @@ public class ClientListner extends Thread{
 			
 			if(friendslist.containsKey(user.getUserName())) {
 				if(friendslist.get(user.getUserName()).contains(friend.getUserName())) return true;
+			}
+		return false;
+	}
+	
+	private boolean isFriendDeclined(User user,User friend) {
+		HashMap<String,HashSet<String>> declinedfriendsLists = resources.getDeclinedfriendsLists();
+			
+			if(declinedfriendsLists.containsKey(user.getUserName())) {
+				if(declinedfriendsLists.get(user.getUserName()).contains(friend.getUserName())) return true;
 			}
 		return false;
 	}
@@ -296,8 +456,6 @@ public class ClientListner extends Thread{
 		}else {
 			resources.addinAllUsers(user);
 			resources.putUsersRegisterLoginHashCodes(user.hashCode(),user.registerLoginhashCode());
-						
-			
 			return true;
 		}
 	}
@@ -328,8 +486,21 @@ public class ClientListner extends Thread{
 		msg.setUser(currentUser);		
 		
 		for(String friend:friends)
-		{			
-			notifyOnline(msg,friend);
+		{		
+			if (friend.contains(",")) {
+				String[] recepientsArr=friend.split(",");
+				for(String r:recepientsArr) {
+					if(!friends.contains(r)) {
+						if(resources.getDeclinedfriendsLists().get(r) == null ||
+								(!resources.getDeclinedfriendsLists().get(r).contains(currentUser.getUserName())))
+						         notifyOnline(msg,r);
+					}
+				   }
+				}else {
+			         if(resources.getDeclinedfriendsLists().get(friend) == null ||
+			        		 (resources.getDeclinedfriendsLists().get(friend) != null && !resources.getDeclinedfriendsLists().get(friend).contains(currentUser.getUserName()))) {
+			        	      notifyOnline(msg,friend);}
+				}
 		}
 	  }
 	}
